@@ -15,7 +15,7 @@ app.use('/todos', todoRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
-  return next(createError(404));
+  return next(createError(404, 'Not Found'));
 });
 
 // error handler
