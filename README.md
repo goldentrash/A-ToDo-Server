@@ -37,8 +37,6 @@ GET /todos
 POST /todos
 ```
 
-#### parameter
-
 | parameter | 의미         | type                |
 | --------- | ------------ | ------------------- |
 | content   | 할 일의 내용 | string (100자 미만) |
