@@ -11,6 +11,7 @@ exports.pool = mysql.createPool({
 const userErrors = [
   'ER_DUP_ENTRY',
   'ER_NO_REFERENCED_ROW_2',
+  'ER_TRUNCATED_WRONG_VALUE',
   'ER_TRUNCATED_WRONG_VALUE_FOR_FIELD',
   'ER_BAD_NULL_ERROR',
 ];
