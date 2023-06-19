@@ -1,0 +1,17 @@
+-- create DB
+DROP DATABASE IF EXISTS a_todo;
+
+CREATE DATABASE a_todo CHARACTER SET utf8;
+
+-- move to DB
+USE a_todo;
+
+-- create tables
+DROP TABLE IF EXISTS todo;
+
+CREATE TABLE todo (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  content VARCHAR(100) NOT NULL,
+  deadline TIMESTAMP NOT NULL,
+  registerd_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
