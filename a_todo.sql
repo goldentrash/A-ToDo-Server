@@ -3,10 +3,10 @@ DROP DATABASE IF EXISTS a_todo;
 
 CREATE DATABASE a_todo CHARACTER SET utf8;
 
--- move to DB
+-- move to a_todo
 USE a_todo;
 
--- create tables
+-- create table todo
 DROP TABLE IF EXISTS todo;
 
 CREATE TABLE todo (
