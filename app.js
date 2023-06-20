@@ -4,14 +4,12 @@ const createError = require('http-errors');
 const express = require('express');
 const logger = require('morgan');
 
-const todoRouter = require('./routes/todo');
-
 const app = express();
 
 app.use(logger('dev'));
 app.use(express.json());
 
-app.use('/todos', todoRouter);
+app.use('/todos', require('./routes/todo'));
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
