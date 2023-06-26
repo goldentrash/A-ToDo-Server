@@ -6,7 +6,7 @@ const logger = require('morgan');
 
 const app = express();
 
-app.use(logger('dev'));
+app.use(logger(process.env.NODE_ENV === 'production' ? 'common' : 'dev'));
 app.use(express.json());
 
 app.use('/todos', require('./routes/todo'));
