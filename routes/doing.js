@@ -26,4 +26,17 @@ router
   )
   .all(methodNotAllowedHandler(['GET', 'POST']));
 
+router
+  .route('/:id/memos')
+  .put(
+    contentNegotiator('json'),
+    asyncHandlerWrapper(async (req, res, next) => {
+      const { id } = req.params;
+      const { memo } = req.body;
+      await doing.updateMemo(id, memo);
+      return res.status(200).json({ message: 'memo Updated' });
+    })
+  )
+  .all(methodNotAllowedHandler(['PUT']));
+
 module.exports = router;
