@@ -3,12 +3,25 @@ const { pool, createDatabaseError } = require('./index');
 const doing = {
   get() {
     const sql = `
-    SELECT id, content, memo, deadline 
-    FROM doing 
+    SELECT
+      id,
+      content,
+      memo,
+      deadline
+    FROM
+      doing
       INNER JOIN todo USING(id)
-    WHERE NOT EXISTS(
-      SELECT id FROM done WHERE doing.id = done.id
-    );`;
+    WHERE
+      NOT EXISTS(
+        SELECT
+          id
+        FROM
+          done
+        WHERE
+          doing.id = done.id
+      )
+    ORDER BY
+      deadline;`;
 
     return new Promise((resolve, reject) => {
       pool.query(sql, (err, results, fields) => {
