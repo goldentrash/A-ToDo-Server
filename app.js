@@ -21,12 +21,12 @@ app.use('/doings', require('./routes/doing'));
 app.use('/dones', require('./routes/done'));
 
 // catch 404 and forward to error handler
-app.use(function (req, res, next) {
+app.use((req, res, next) => {
   return next(createError(404, 'Not Found'));
 });
 
 // error handler
-app.use(function (err, req, res, next) {
+app.use((err, req, res, next) => {
   err.status = err.status || 500;
 
   if (err.status >= 500)

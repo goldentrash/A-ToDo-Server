@@ -6,7 +6,7 @@
 
 const app = require('../app');
 const http = require('http');
-const infoStream = require('debug')('a-todo:server');
+const infoStream = require('debug')('a-todo:info');
 infoStream.log = console.info.bind(console);
 
 /**
