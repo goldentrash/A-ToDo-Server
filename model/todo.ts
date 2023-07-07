@@ -1,7 +1,12 @@
-const { pool, createDatabaseError } = require('./index');
+import { pool, createDatabaseError } from 'model/index';
 
-const todo = {
-  get() {
+type Todo = {
+  id: number;
+  content: string;
+  deadline: string;
+};
+export default {
+  getAll() {
     const sql = `
     SELECT
       id,
@@ -21,19 +26,19 @@ const todo = {
     ORDER BY
       deadline;`;
 
-    return new Promise((resolve, reject) => {
-      pool.query(sql, (err, results, fields) => {
+    return new Promise<Todo[]>((resolve, reject) => {
+      pool.query(sql, (err, results, _fields) => {
         if (err) return reject(createDatabaseError(err));
 
         return resolve(results);
       });
     });
   },
-  add(content, deadline) {
+  add(content: string, deadline: string) {
     const sql = `INSERT INTO todo(content, deadline) VALUES(?, ?);`;
 
-    return new Promise((resolve, reject) => {
-      pool.query(sql, [content, deadline], (err, results, fields) => {
+    return new Promise<void>((resolve, reject) => {
+      pool.query(sql, [content, deadline], (err, _results, _fields) => {
         if (err) return reject(createDatabaseError(err));
 
         return resolve();
@@ -41,5 +46,3 @@ const todo = {
     });
   },
 };
-
-module.exports = todo;
