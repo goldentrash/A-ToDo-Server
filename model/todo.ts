@@ -1,4 +1,4 @@
-import { pool, createDatabaseError } from 'model/index';
+import { pool, createDatabaseError } from "model/index";
 
 type Todo = {
   id: number;

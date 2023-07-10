@@ -1,4 +1,4 @@
-import { pool, createDatabaseError } from 'model/index';
+import { pool, createDatabaseError } from "model/index";
 
 type Doing = {
   id: number;
@@ -52,7 +52,7 @@ export default {
     const sql = `UPDATE doing SET memo = ? WHERE id = ?;`;
 
     return new Promise<void>((resolve, reject) => {
-      pool.query(sql, [memo, id], (err, results, fields) => {
+      pool.query(sql, [memo, id], (err, _results, _fields) => {
         if (err) return reject(createDatabaseError(err));
 
         return resolve();
