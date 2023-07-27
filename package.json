@@ -11,7 +11,9 @@
   "scripts": {
     "prepare": "husky install",
     "start": "concurrently \"tsc --watch\" \"tsc-alias --watch\" \"node --watch ./bin/www\"",
-    "test": "echo test",
+    "init:db": "./script/db_init.sh",
+    "pretest": "yarn init:db",
+    "test": "yarn newman run -e test/local.postman_environment.json -d test/variables.json \"test/functionality test.postman_collection.json\"",
     "prebuild": "yarn test",
     "build": "tsc && tsc-alias && docker build --tag goldentrash/a-todo-server:latest .",
     "postbuild": "docker push goldentrash/a-todo-server"
@@ -22,7 +24,7 @@
     "express": "~4.16.1",
     "http-errors": "~1.6.3",
     "morgan": "~1.9.1",
-    "mysql": "^2.18.1"
+    "mysql2": "^3.5.2"
   },
   "devDependencies": {
     "@types/debug": "^4.1.8",
@@ -37,7 +39,9 @@
     "eslint-config-prettier": "^8.8.0",
     "husky": "^8.0.3",
     "lint-staged": "^13.2.3",
+    "newman": "^5.3.2",
     "prettier": "^3.0.0",
+    "prettier-plugin-sh": "^0.13.1",
     "prettier-plugin-sql": "^0.15.1",
     "tsc-alias": "^1.8.7",
     "typescript": "^5.1.6"

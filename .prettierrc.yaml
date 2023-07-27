@@ -12,3 +12,4 @@ endOfLine: lf
 embeddedLanguageFormatting: auto
 plugins:
   - prettier-plugin-sql
+  - prettier-plugin-sh

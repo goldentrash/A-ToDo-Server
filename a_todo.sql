@@ -15,7 +15,7 @@ CREATE TABLE
     salt CHAR(5) NOT NULL,
     hashed_password CHAR(20) NOT NULL, -- hash 길이 확인 필요
     registerd_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    last_accessed_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    last_accessed_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
   ) ENGINE = InnoDB;
 
 CREATE TABLE
@@ -31,7 +31,6 @@ CREATE TABLE
     content VARCHAR(100) NOT NULL,
     memo VARCHAR(200) NOT NULL DEFAULT "",
     deadline DATE NOT NULL, -- must match DB timezon
-    days_until_deadline INT GENERATED ALWAYS AS (DATEDIFF (deadline, DATE (NOW ()))) VIRTUAL,
     registerd_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     started_at TIMESTAMP,
     finished_at TIMESTAMP,

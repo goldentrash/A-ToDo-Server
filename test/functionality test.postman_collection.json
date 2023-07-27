@@ -1,0 +1,640 @@
+{
+  "info": {
+    "_postman_id": "79e4e843-4edf-48e3-aee5-78a3f5006014",
+    "name": "functionality test",
+    "description": "test basic functionality by scenario\n\n### scenario\n\n1. sign up a user\n2. sign in as that user\n3. get the uesr's tasks\n4. register a new task\n5. start the task\n6. update the task's memo\n7. finish the task",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "12435323",
+    "_collection_link": "https://www.postman.com/whitepianow/workspace/a-todo/collection/12435323-79e4e843-4edf-48e3-aee5-78a3f5006014?action=share&creator=12435323&source=collection_link"
+  },
+  "item": [
+    {
+      "name": "Sign up",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "var Ajv = require(\"ajv\");",
+              "var ajv = new Ajv();",
+              "",
+              "var code = pm.response.code;",
+              "var { message, data } = pm.response.json();",
+              "",
+              "pm.test(\"Status check\", () => {",
+              "  pm.expect(code, \"status code must be 201\").to.equal(201);",
+              "  pm.expect(message, 'response message must be \"user created\"').to.equal(",
+              "    \"user created\"",
+              "  );",
+              "});",
+              "",
+              "pm.test(\"Data validation check\", () => {",
+              "  const userSchema = {",
+              "    type: \"object\",",
+              "    properties: {",
+              "      id: { type: \"string\" },",
+              "      registeredAt: { type: \"string\" },",
+              "      accessedAt: { type: \"string\" },",
+              "    },",
+              "    required: [\"id\", \"registeredAt\", \"accessedAt\"],",
+              "  };",
+              "  pm.expect(",
+              "    ajv.validate(userSchema, data.user),",
+              "    \"response body must have created user information\"",
+              "  ).to.be.true();",
+              "});",
+              ""
+            ],
+            "type": "text/javascript"
+          }
+        },
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": [
+              "var userId = pm.iterationData.get(\"userId\");",
+              "pm.variables.set(\"userId\", userId);",
+              "",
+              "var password = pm.iterationData.get(\"password\");",
+              "pm.variables.set(\"password\", password);",
+              ""
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"userId\": \"{{userId}}\",\n    \"password\": \"{{password}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/users",
+          "host": ["{{base_url}}"],
+          "path": ["users"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Sign in",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "var Ajv = require(\"ajv\");",
+              "var ajv = new Ajv();",
+              "",
+              "var code = pm.response.code;",
+              "var { message, data } = pm.response.json();",
+              "",
+              "pm.test(\"Status check\", () => {",
+              "  pm.expect(code, \"status code must be 200\").to.equal(200);",
+              "  pm.expect(message, 'response message must be \"access accepted\"').to.equal(",
+              "    \"access accepted\"",
+              "  );",
+              "});",
+              "",
+              "pm.test(\"Data validation check\", () => {",
+              "  const tokenSchema = {",
+              "    type: \"object\",",
+              "    properties: {",
+              "      userId: { type: \"string\" },",
+              "      ttl: { type: \"string\" },",
+              "    },",
+              "    required: [\"userId\", \"ttl\"],",
+              "  };",
+              "  pm.expect(",
+              "    ajv.validate(tokenSchema, JSON.parse(data.token)),",
+              "    \"response body must have access token\"",
+              "  ).to.be.true();",
+              "",
+              "  pm.variables.set(\"token\", data.token);",
+              "});",
+              ""
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"password\": \"{{password}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/users/:userId/token",
+          "host": ["{{base_url}}"],
+          "path": ["users", ":userId", "token"],
+          "variable": [
+            {
+              "key": "userId",
+              "value": "{{userId}}"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get todo list and doing",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "var Ajv = require(\"ajv\");",
+              "var ajv = new Ajv();",
+              "",
+              "var code = pm.response.code;",
+              "var { message, data } = pm.response.json();",
+              "",
+              "pm.test(\"Status check\", () => {",
+              "  pm.expect(code, \"status code must be 200\").to.equal(200);",
+              "  pm.expect(message, 'response message must be \"query accepted\"').to.equal(",
+              "    \"query accepted\"",
+              "  );",
+              "});",
+              "",
+              "pm.test(\"Data validation check\", () => {",
+              "  const todoListSchema = {",
+              "    type: \"array\",",
+              "    items: {",
+              "      type: \"object\",",
+              "      properties: {",
+              "        id: { type: \"string\" },",
+              "        progress: { const: \"todo\" },",
+              "        content: { type: \"string\" },",
+              "        memo: { type: \"string\" },",
+              "        deadline: { type: \"string\" },",
+              "        daysUntilDeadline: { type: \"string\" },",
+              "        registeredAt: { type: \"string\" },",
+              "      },",
+              "    },",
+              "  };",
+              "  pm.expect(",
+              "    ajv.validate(todoListSchema, data.todoList),",
+              "    \"response body must have todo list\"",
+              "  ).to.be.true();",
+              "",
+              "  const doingSchema = {",
+              "    type: \"object\",",
+              "    properties: {",
+              "      id: { type: \"string\" },",
+              "      progress: { const: \"doing\" },",
+              "      content: { type: \"string\" },",
+              "      memo: { type: \"string\" },",
+              "      deadline: { type: \"string\" },",
+              "      daysUntilDeadline: { type: \"string\" },",
+              "      registeredAt: { type: \"string\" },",
+              "      startedAt: { type: \"string\" },",
+              "    },",
+              "  };",
+              "  pm.expect(",
+              "    ajv.validate(doingSchema, data.doing),",
+              "    \"response body must have doing\"",
+              "  ).to.be.true();",
+              "});",
+              ""
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/users/:userId/tasks?progress=todo&progress=doing",
+          "host": ["{{base_url}}"],
+          "path": ["users", ":userId", "tasks"],
+          "query": [
+            {
+              "key": "progress",
+              "value": "todo"
+            },
+            {
+              "key": "progress",
+              "value": "doing"
+            }
+          ],
+          "variable": [
+            {
+              "key": "userId",
+              "value": "{{userId}}"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Register task",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": [
+              "var content = pm.iterationData.get(\"content\");",
+              "pm.variables.set(\"content\", content);",
+              "",
+              "var deadline = pm.iterationData.get(\"deadline\");",
+              "pm.variables.set(\"deadline\", deadline);",
+              ""
+            ],
+            "type": "text/javascript"
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "var Ajv = require(\"ajv\");",
+              "var ajv = new Ajv();",
+              "",
+              "var code = pm.response.code;",
+              "var { message, data } = pm.response.json();",
+              "",
+              "pm.test(\"Status check\", () => {",
+              "  pm.expect(pm.response.code, \"status code must be 201\").to.equal(201);",
+              "  pm.expect(",
+              "    pm.response.json().message,",
+              "    'response message must be \"task created\"'",
+              "  ).to.equal(\"task created\");",
+              "});",
+              "",
+              "pm.test(\"Data validation check\", () => {",
+              "  const todoSchema = {",
+              "    type: \"object\",",
+              "    properties: {",
+              "      id: { type: \"string\" },",
+              "      progress: { const: \"todo\" },",
+              "      content: { type: \"string\" },",
+              "      memo: { type: \"string\" },",
+              "      deadline: { type: \"string\" },",
+              "      daysUntilDeadline: { type: \"string\" },",
+              "      registeredAt: { type: \"string\" },",
+              "    },",
+              "  };",
+              "  pm.expect(",
+              "    ajv.validate(todoSchema, data.task),",
+              "    \"response body must have task in progress todo\"",
+              "  ).to.be.true();",
+              "  pm.expect(data.task.id, \"the task's id must be an id from request\").to.equal(",
+              "    pm.variable.get(\"id\")",
+              "  );",
+              "",
+              "  pm.variables.set(\"taskId\", data.id);",
+              "});",
+              ""
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"content\": \"{{content}}\",\n    \"deadline\": \"{{deadline}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/users/:userId/tasks",
+          "host": ["{{base_url}}"],
+          "path": ["users", ":userId", "tasks"],
+          "variable": [
+            {
+              "key": "userId",
+              "value": "{{userId}}"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Start task",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "var Ajv = require(\"ajv\");",
+              "var ajv = new Ajv();",
+              "",
+              "var code = pm.response.code;",
+              "var { message, data } = pm.response.json();",
+              "",
+              "pm.test(\"Status check\", () => {",
+              "  pm.expect(pm.response.code, \"status code must be 200\").to.equal(200);",
+              "  pm.expect(",
+              "    pm.response.json().message,",
+              "    'response message must be \"task started\"'",
+              "  ).to.equal(\"task started\");",
+              "});",
+              "",
+              "pm.test(\"Data validation check\", () => {",
+              "  const doingSchema = {",
+              "    type: \"object\",",
+              "    properties: {",
+              "      id: { type: \"string\" },",
+              "      progress: { const: \"doing\" },",
+              "      content: { type: \"string\" },",
+              "      memo: { type: \"string\" },",
+              "      deadline: { type: \"string\" },",
+              "      daysUntilDeadline: { type: \"string\" },",
+              "      registeredAt: { type: \"string\" },",
+              "      startedAt: { type: \"string\" },",
+              "    },",
+              "  };",
+              "  pm.expect(",
+              "    ajv.validate(doingSchema, data.task),",
+              "    \"response body must have task in progress doing\"",
+              "  ).to.be.true();",
+              "  pm.expect(data.task.id, \"the task's id must be an id from request\").to.equal(",
+              "    pm.variable.get(\"id\")",
+              "  );",
+              "});",
+              ""
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "PATCH",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"action\": \"start\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/users/:userId/tasks/:taskId",
+          "host": ["{{base_url}}"],
+          "path": ["users", ":userId", "tasks", ":taskId"],
+          "variable": [
+            {
+              "key": "userId",
+              "value": "{{userId}}"
+            },
+            {
+              "key": "taskId",
+              "value": "{{taskId}}"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Update memo",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": [
+              "var memo = pm.iterationData.get(\"memo\");",
+              "pm.variables.set(\"memo\", memo);",
+              ""
+            ],
+            "type": "text/javascript"
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "var Ajv = require(\"ajv\");",
+              "var ajv = new Ajv();",
+              "",
+              "var code = pm.response.code;",
+              "var { message, data } = pm.response.json();",
+              "",
+              "pm.test(\"Status check\", () => {",
+              "  pm.expect(pm.response.code, \"status code must be 200\").to.equal(200);",
+              "  pm.expect(",
+              "    pm.response.json().message,",
+              "    'response message must be \"memo updated\"'",
+              "  ).to.equal(\"memo updated\");",
+              "});",
+              "",
+              "pm.test(\"Data validation check\", () => {",
+              "  const taskSchema = {",
+              "    type: \"object\",",
+              "    properties: {",
+              "      id: { type: \"string\" },",
+              "      progress: { enum: [\"todo\", \"doing\", \"done\"] },",
+              "      content: { type: \"string\" },",
+              "      memo: { type: \"string\" },",
+              "      deadline: { type: \"string\" },",
+              "      daysUntilDeadline: { type: \"string\" },",
+              "      registeredAt: { type: \"string\" },",
+              "      startedAt: { type: \"string\" },",
+              "    },",
+              "  };",
+              "  pm.expect(",
+              "    ajv.validate(taskSchema, data.task),",
+              "    \"response body must have task\"",
+              "  ).to.be.true();",
+              "  pm.expect(data.task.id, \"the task's id must be an id from request\").to.equal(",
+              "    pm.variable.get(\"id\")",
+              "  );",
+              "  pm.expect(",
+              "    data.task.memo,",
+              "    \"the task's memo must be a memo from request\"",
+              "  ).to.equal(pm.variable.get(\"memo\"));",
+              "});",
+              ""
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "PUT",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"memo\": \"{{memo}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/users/:userId/tasks/:taskId/memo",
+          "host": ["{{base_url}}"],
+          "path": ["users", ":userId", "tasks", ":taskId", "memo"],
+          "variable": [
+            {
+              "key": "userId",
+              "value": "{{userId}}"
+            },
+            {
+              "key": "taskId",
+              "value": "{{taskId}}"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Finish task",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "var Ajv = require(\"ajv\");",
+              "var ajv = new Ajv();",
+              "",
+              "var code = pm.response.code;",
+              "var { message, data } = pm.response.json();",
+              "",
+              "pm.test(\"Status check\", () => {",
+              "  pm.expect(pm.response.code, \"status code must be 200\").to.equal(200);",
+              "  pm.expect(",
+              "    pm.response.json().message,",
+              "    'response message must be \"task finished\"'",
+              "  ).to.equal(\"task finished\");",
+              "});",
+              "",
+              "pm.test(\"Data validation check\", () => {",
+              "  const doneSchema = {",
+              "    type: \"object\",",
+              "    properties: {",
+              "      id: { type: \"string\" },",
+              "      progress: { const: \"done\" },",
+              "      content: { type: \"string\" },",
+              "      memo: { type: \"string\" },",
+              "      deadline: { type: \"string\" },",
+              "      daysUntilDeadline: { type: \"string\" },",
+              "      registeredAt: { type: \"string\" },",
+              "      startedAt: { type: \"string\" },",
+              "      finishedAt: { type: \"string\" },",
+              "    },",
+              "  };",
+              "  pm.expect(",
+              "    ajv.validate(doneSchema, data.task),",
+              "    \"response body must have task in progress done\"",
+              "  ).to.be.true();",
+              "  pm.expect(data.task.id, \"the task's id must be an id from request\").to.equal(",
+              "    pm.variable.get(\"id\")",
+              "  );",
+              "});",
+              ""
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "PATCH",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"action\": \"finish\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/users/:userId/tasks/:taskId",
+          "host": ["{{base_url}}"],
+          "path": ["users", ":userId", "tasks", ":taskId"],
+          "variable": [
+            {
+              "key": "userId",
+              "value": "{{userId}}"
+            },
+            {
+              "key": "taskId",
+              "value": "{{taskId}}"
+            }
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}
