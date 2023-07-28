@@ -1,12 +1,9 @@
 import debug from "debug";
-import createError from "http-errors";
-import express from "express";
+import createError, { HttpError } from "http-errors";
 import logger from "morgan";
-import todoRouter from "routes/todo";
-import doingRouter from "routes/doing";
-import doneRouter from "routes/done";
-import { HttpError } from "http-errors";
+import express from "express";
 import type { Request, Response, NextFunction } from "express";
+import { userRouter } from "routes";
 
 const errStream = debug("a-todo:error");
 const logStream = debug("a-todo:log");
@@ -21,9 +18,7 @@ app.use(
 );
 app.use(express.json());
 
-app.use("/todos", todoRouter);
-app.use("/doings", doingRouter);
-app.use("/dones", doneRouter);
+app.use("/users", userRouter);
 
 // catch 404 and forward to error handler
 app.use((_req, _res, next: NextFunction) => {
