@@ -2,9 +2,7 @@ import type {
   ResultSetHeader,
   PoolConnection,
   RowDataPacket,
-  QueryError,
 } from "mysql2/promise";
-import createError from "http-errors";
 
 export type User = {
   id: string;
@@ -28,7 +26,7 @@ export const userModel = {
     );
   },
   async updateAccessTime(conn: PoolConnection, id: User["id"]) {
-    return await conn.execute(
+    return await conn.execute<ResultSetHeader>(
       `
       UPDATE user
       SET
@@ -43,24 +41,14 @@ export const userModel = {
     conn: PoolConnection,
     { id, hashed_password }: Pick<User, "id" | "hashed_password">
   ) {
-    return await conn
-      .execute<ResultSetHeader>(
-        `
+    return await conn.execute<ResultSetHeader>(
+      `
         INSERT INTO
           user (id, hashed_password)
         VALUES
           (?, ?);
         `,
-        [id, hashed_password]
-      )
-      .catch((err: QueryError) => {
-        if (err.code === "ER_DUP_ENTRY")
-          throw createError(400, "duplicated user ID");
-
-        if (err.code === "ER_DATA_TOO_LONG")
-          throw createError(400, "too long user ID");
-
-        throw createError(500, "database error");
-      });
+      [id, hashed_password]
+    );
   },
 };

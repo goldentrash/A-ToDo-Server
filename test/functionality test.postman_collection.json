@@ -90,9 +90,6 @@
           "listen": "test",
           "script": {
             "exec": [
-              "var Ajv = require(\"ajv\");",
-              "var ajv = new Ajv();",
-              "",
               "var code = pm.response.code;",
               "var { message, data } = pm.response.json();",
               "",
@@ -104,22 +101,11 @@
               "});",
               "",
               "pm.test(\"Data validation check\", () => {",
-              "  const tokenSchema = {",
-              "    type: \"object\",",
-              "    properties: {",
-              "      userId: { type: \"string\" },",
-              "      ttl: { type: \"string\" },",
-              "    },",
-              "    required: [\"userId\", \"ttl\"],",
-              "  };",
-              "  pm.expect(",
-              "    ajv.validate(tokenSchema, JSON.parse(data.token)),",
-              "    \"response body must have access token\"",
-              "  ).to.be.true;",
-              "",
+              "  pm.expect(data.token, \"response body must have access token\").to.be.a(",
+              "    \"string\"",
+              "  );",
               "  pm.variables.set(\"token\", data.token);",
-              "});",
-              ""
+              "});"
             ],
             "type": "text/javascript"
           }
@@ -138,12 +124,12 @@
           }
         },
         "url": {
-          "raw": "{{base_url}}/users/:userId/token",
+          "raw": "{{base_url}}/users/:user_id/token",
           "host": ["{{base_url}}"],
-          "path": ["users", ":userId", "token"],
+          "path": ["users", ":user_id", "token"],
           "variable": [
             {
-              "key": "userId",
+              "key": "user_id",
               "value": "{{userId}}"
             }
           ]
@@ -201,6 +187,7 @@
               "",
               "  const doingSchema = {",
               "    type: \"object\",",
+              "    nullable: true,",
               "    properties: {",
               "      id: { type: \"string\" },",
               "      progress: { const: \"doing\" },",
@@ -221,7 +208,7 @@
               "    ],",
               "  };",
               "  pm.expect(",
-              "    ajv.validate(doingSchema, data.doing),",
+              "    ajv.validate(doingSchema, data.doing) || data.doing === null,",
               "    \"response body must have doing\"",
               "  ).to.be.true;",
               "});",
@@ -245,9 +232,9 @@
         "method": "GET",
         "header": [],
         "url": {
-          "raw": "{{base_url}}/users/:userId/tasks?progress=todo&progress=doing",
+          "raw": "{{base_url}}/users/:user_id/tasks?progress=todo&progress=doing",
           "host": ["{{base_url}}"],
-          "path": ["users", ":userId", "tasks"],
+          "path": ["users", ":user_id", "tasks"],
           "query": [
             {
               "key": "progress",
@@ -260,7 +247,7 @@
           ],
           "variable": [
             {
-              "key": "userId",
+              "key": "user_id",
               "value": "{{userId}}"
             }
           ]
@@ -362,12 +349,12 @@
           }
         },
         "url": {
-          "raw": "{{base_url}}/users/:userId/tasks",
+          "raw": "{{base_url}}/users/:user_id/tasks",
           "host": ["{{base_url}}"],
-          "path": ["users", ":userId", "tasks"],
+          "path": ["users", ":user_id", "tasks"],
           "variable": [
             {
-              "key": "userId",
+              "key": "user_id",
               "value": "{{userId}}"
             }
           ]
@@ -455,16 +442,16 @@
           }
         },
         "url": {
-          "raw": "{{base_url}}/users/:userId/tasks/:taskId",
+          "raw": "{{base_url}}/users/:user_id/tasks/:task_id",
           "host": ["{{base_url}}"],
-          "path": ["users", ":userId", "tasks", ":taskId"],
+          "path": ["users", ":user_id", "tasks", ":task_id"],
           "variable": [
             {
-              "key": "userId",
+              "key": "user_id",
               "value": "{{userId}}"
             },
             {
-              "key": "taskId",
+              "key": "task_id",
               "value": "{{taskId}}"
             }
           ]
@@ -566,16 +553,16 @@
           }
         },
         "url": {
-          "raw": "{{base_url}}/users/:userId/tasks/:taskId/memo",
+          "raw": "{{base_url}}/users/:user_id/tasks/:task_id/memo",
           "host": ["{{base_url}}"],
-          "path": ["users", ":userId", "tasks", ":taskId", "memo"],
+          "path": ["users", ":user_id", "tasks", ":task_id", "memo"],
           "variable": [
             {
-              "key": "userId",
+              "key": "user_id",
               "value": "{{userId}}"
             },
             {
-              "key": "taskId",
+              "key": "task_id",
               "value": "{{taskId}}"
             }
           ]
@@ -665,16 +652,16 @@
           }
         },
         "url": {
-          "raw": "{{base_url}}/users/:userId/tasks/:taskId",
+          "raw": "{{base_url}}/users/:user_id/tasks/:task_id",
           "host": ["{{base_url}}"],
-          "path": ["users", ":userId", "tasks", ":taskId"],
+          "path": ["users", ":user_id", "tasks", ":task_id"],
           "variable": [
             {
-              "key": "userId",
+              "key": "user_id",
               "value": "{{userId}}"
             },
             {
-              "key": "taskId",
+              "key": "task_id",
               "value": "{{taskId}}"
             }
           ]

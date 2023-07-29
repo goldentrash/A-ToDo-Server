@@ -7,5 +7,7 @@ export const pool = mysql.createPool({
   database: "a_todo",
 });
 
-export { user } from "./user";
-export { task } from "./task";
+export { userModel } from "./user";
+export type { User } from "./user";
+export { taskModel } from "./task";
+export type { Task, Todo, Doing, Done } from "./task";

@@ -1,4 +1,8 @@
-import type { PoolConnection } from "mysql2/promise";
+import type {
+  ResultSetHeader,
+  PoolConnection,
+  RowDataPacket,
+} from "mysql2/promise";
 
 type TaskBase = {
   id: string;
@@ -19,7 +23,7 @@ export type Task = Todo | Doing | Done;
 
 export const taskModel = {
   async findAll(conn: PoolConnection, user_id: Task["user_id"]) {
-    return await conn.execute(
+    return await conn.execute<RowDataPacket[]>(
       `
       SELECT
         *
@@ -40,7 +44,7 @@ export const taskModel = {
       deadline,
     }: Pick<Task, "id" | "user_id" | "content" | "deadline">
   ) {
-    return await conn.execute(
+    return await conn.execute<ResultSetHeader>(
       `
       INSERT INTO
         task (id, user_id, content, deadline)
@@ -51,7 +55,7 @@ export const taskModel = {
     );
   },
   async start(conn: PoolConnection, id: Task["id"]) {
-    return await conn.execute(
+    return await conn.execute<ResultSetHeader>(
       `
       UPDATE task
       SET
@@ -64,7 +68,7 @@ export const taskModel = {
     );
   },
   async finish(conn: PoolConnection, id: Task["id"]) {
-    return await conn.execute(
+    return await conn.execute<ResultSetHeader>(
       `
       UPDATE task
       SET

@@ -1,4 +1,6 @@
 import type { Request, Response, NextFunction } from "express";
+import jwt from "jsonwebtoken";
+import createError from "http-errors";
 
 export const asyncHandlerWrapper = (
   asyncRouteHandler: (
@@ -36,3 +38,25 @@ export const genMethodNotAllowedHandler =
       message: "Method Not Allowed",
     });
   };
+
+export const userAuthenticator = (
+  req: Request,
+  _res: Response,
+  next: NextFunction
+) => {
+  const token = req.get("Authorization")?.split(" ")[1];
+  if (!token) return next(createError(401, "not authorized"));
+
+  try {
+    const payload = jwt.verify(
+      token,
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      process.env.JWT_SECRET!
+    ) as jwt.JwtPayload;
+    if (payload.id !== req.params.id) throw Error("invalid token");
+  } catch {
+    return next(createError(401, "invalid token"));
+  }
+
+  return next();
+};
