@@ -2,24 +2,23 @@ import type { PoolConnection } from "mysql2/promise";
 
 type TaskBase = {
   id: string;
-  userId: string;
+  user_id: string;
   content: string;
   memo: string;
   deadline: string;
-  daysUntilDeadline: string;
-  registerdAt: string;
+  registerd_at: string;
 };
 type Todo = TaskBase & { progress: "todo" };
-type Doing = TaskBase & { progress: "doing"; startedAt: string };
+type Doing = TaskBase & { progress: "doing"; started_at: string };
 type Done = TaskBase & {
   progress: "done";
-  startedAt: string;
-  finishedAt: string;
+  started_at: string;
+  finished_at: string;
 };
 type Task = Todo | Doing | Done;
 
 export const task = {
-  async findAll(conn: PoolConnection, userId: Task["userId"]) {
+  async findAll(conn: PoolConnection, user_id: Task["user_id"]) {
     return await conn.execute(
       `
       SELECT
@@ -29,17 +28,17 @@ export const task = {
       WHERE
         user_id = ?;
       `,
-      [userId]
+      [user_id]
     );
   },
   async register(
     conn: PoolConnection,
     {
       id,
-      userId,
+      user_id,
       content,
       deadline,
-    }: Pick<Task, "id" | "userId" | "content" | "deadline">
+    }: Pick<Task, "id" | "user_id" | "content" | "deadline">
   ) {
     return await conn.execute(
       `
@@ -48,7 +47,7 @@ export const task = {
       VALUES
         (?, ?, ?, ?);
       `,
-      [[id, userId, content, deadline]]
+      [id, user_id, content, deadline]
     );
   },
   async start(conn: PoolConnection, id: Task["id"]) {

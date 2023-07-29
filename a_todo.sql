@@ -12,8 +12,7 @@ USE a_todo;
 CREATE TABLE
   user (
     id VARCHAR(10) PRIMARY KEY,
-    salt CHAR(5) NOT NULL,
-    hashed_password CHAR(20) NOT NULL, -- hash 길이 확인 필요
+    hashed_password CHAR(60) NOT NULL,
     registerd_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     last_accessed_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
   ) ENGINE = InnoDB;

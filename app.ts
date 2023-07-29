@@ -33,9 +33,6 @@ app.use((err: unknown, req: Request, res: Response, _next: NextFunction) => {
   if (err instanceof HttpError) {
     status = err.status;
     message = err.message;
-  } else if (err instanceof Error) {
-    status = 500;
-    message = err.message;
   } else {
     status = 500;
     message = "Internal Server Error";

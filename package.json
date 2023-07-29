@@ -19,6 +19,7 @@
     "postbuild": "docker push goldentrash/a-todo-server"
   },
   "dependencies": {
+    "bcrypt": "^5.1.0",
     "debug": "~2.6.9",
     "dotenv": "^16.3.1",
     "express": "~4.16.1",
@@ -27,6 +28,7 @@
     "mysql2": "^3.5.2"
   },
   "devDependencies": {
+    "@types/bcrypt": "^5.0.0",
     "@types/debug": "^4.1.8",
     "@types/express": "^4.17.17",
     "@types/morgan": "^1.9.4",
