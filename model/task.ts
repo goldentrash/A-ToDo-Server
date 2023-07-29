@@ -8,16 +8,16 @@ type TaskBase = {
   deadline: string;
   registerd_at: string;
 };
-type Todo = TaskBase & { progress: "todo" };
-type Doing = TaskBase & { progress: "doing"; started_at: string };
-type Done = TaskBase & {
+export type Todo = TaskBase & { progress: "todo" };
+export type Doing = TaskBase & { progress: "doing"; started_at: string };
+export type Done = TaskBase & {
   progress: "done";
   started_at: string;
   finished_at: string;
 };
-type Task = Todo | Doing | Done;
+export type Task = Todo | Doing | Done;
 
-export const task = {
+export const taskModel = {
   async findAll(conn: PoolConnection, user_id: Task["user_id"]) {
     return await conn.execute(
       `

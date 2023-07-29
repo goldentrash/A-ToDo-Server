@@ -6,14 +6,14 @@ import type {
 } from "mysql2/promise";
 import createError from "http-errors";
 
-type User = {
+export type User = {
   id: string;
   hashed_password: string;
   registerd_at: string;
   last_accessed_at: string;
 };
 
-export const user = {
+export const userModel = {
   async find(conn: PoolConnection, id: User["id"]) {
     return await conn.execute<RowDataPacket[]>(
       `
