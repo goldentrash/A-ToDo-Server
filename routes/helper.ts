@@ -41,10 +41,11 @@ export const genMethodNotAllowedHandler =
 
 export const userAuthenticator = (
   req: Request,
-  _res: Response,
+  res: Response,
   next: NextFunction
 ) => {
-  const token = req.get("Authorization")?.split(" ")[1];
+  const [type, token] = req.get("Authorization")?.split(" ") ?? [];
+  if (type !== "Bearer") return next(createError(401, "invalid token"));
   if (!token) return next(createError(401, "not authorized"));
 
   try {
@@ -53,7 +54,7 @@ export const userAuthenticator = (
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       process.env.JWT_SECRET!
     ) as jwt.JwtPayload;
-    if (payload.id !== req.params.id) throw Error("invalid token");
+    res.locals.user_id = payload.userId;
   } catch {
     return next(createError(401, "invalid token"));
   }

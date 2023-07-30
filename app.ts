@@ -3,7 +3,7 @@ import createError, { HttpError } from "http-errors";
 import logger from "morgan";
 import express from "express";
 import type { Request, Response, NextFunction } from "express";
-import { userRouter } from "routes";
+import { usersRouter, tasksRouter } from "routes";
 
 const errStream = debug("a-todo:error");
 const logStream = debug("a-todo:log");
@@ -18,7 +18,8 @@ app.use(
 );
 app.use(express.json());
 
-app.use("/users", userRouter);
+app.use("/users", usersRouter);
+app.use("/tasks", tasksRouter);
 
 // catch 404 and forward to error handler
 app.use((_req, _res, next: NextFunction) => {

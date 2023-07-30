@@ -22,7 +22,7 @@ export type Done = TaskBase & {
 export type Task = Todo | Doing | Done;
 
 export const taskModel = {
-  async findAll(conn: PoolConnection, user_id: Task["user_id"]) {
+  async findByUser(conn: PoolConnection, user_id: Task["user_id"]) {
     return await conn.execute<RowDataPacket[]>(
       `
       SELECT
@@ -87,7 +87,7 @@ export const taskModel = {
       `
       UPDATE task
       SET
-        progress = doing,
+        progress = "doing",
         started_at = CURRENT_TIMESTAMP
       WHERE
         id = ?;
@@ -100,7 +100,7 @@ export const taskModel = {
       `
       UPDATE task
       SET
-        progress = done,
+        progress = "done",
         finished_at = CURRENT_TIMESTAMP
       WHERE
         id = ?;

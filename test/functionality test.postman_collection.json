@@ -232,9 +232,9 @@
         "method": "GET",
         "header": [],
         "url": {
-          "raw": "{{base_url}}/users/:user_id/tasks?progress=todo&progress=doing",
+          "raw": "{{base_url}}/tasks?progress=todo&progress=doing",
           "host": ["{{base_url}}"],
-          "path": ["users", ":user_id", "tasks"],
+          "path": ["tasks"],
           "query": [
             {
               "key": "progress",
@@ -243,12 +243,6 @@
             {
               "key": "progress",
               "value": "doing"
-            }
-          ],
-          "variable": [
-            {
-              "key": "user_id",
-              "value": "{{userId}}"
             }
           ]
         }
@@ -281,6 +275,7 @@
               "",
               "var code = pm.response.code;",
               "var { message, data } = pm.response.json();",
+              "pm.variables.set(\"taskId\", data.task.id);",
               "",
               "pm.test(\"Status check\", () => {",
               "  pm.expect(pm.response.code, \"status code must be 201\").to.equal(201);",
@@ -314,8 +309,6 @@
               "    ajv.validate(todoSchema, data.task),",
               "    \"response body must have task in progress todo\"",
               "  ).to.be.true;",
-              "",
-              "  pm.variables.set(\"taskId\", data.id);",
               "});",
               ""
             ],
@@ -346,15 +339,9 @@
           }
         },
         "url": {
-          "raw": "{{base_url}}/users/:user_id/tasks",
+          "raw": "{{base_url}}/tasks",
           "host": ["{{base_url}}"],
-          "path": ["users", ":user_id", "tasks"],
-          "variable": [
-            {
-              "key": "user_id",
-              "value": "{{userId}}"
-            }
-          ]
+          "path": ["tasks"]
         }
       },
       "response": []
@@ -407,7 +394,7 @@
               "    \"response body must have task in progress doing\"",
               "  ).to.be.true;",
               "  pm.expect(data.task.id, \"the task's id must be an id from request\").to.equal(",
-              "    pm.variable.get(\"id\")",
+              "    pm.variables.get(\"taskId\")",
               "  );",
               "});",
               ""
@@ -439,14 +426,10 @@
           }
         },
         "url": {
-          "raw": "{{base_url}}/users/:user_id/tasks/:task_id",
+          "raw": "{{base_url}}/tasks/:task_id",
           "host": ["{{base_url}}"],
-          "path": ["users", ":user_id", "tasks", ":task_id"],
+          "path": ["tasks", ":task_id"],
           "variable": [
-            {
-              "key": "user_id",
-              "value": "{{userId}}"
-            },
             {
               "key": "task_id",
               "value": "{{taskId}}"
@@ -514,12 +497,12 @@
               "    \"response body must have task\"",
               "  ).to.be.true;",
               "  pm.expect(data.task.id, \"the task's id must be an id from request\").to.equal(",
-              "    pm.variable.get(\"id\")",
+              "    pm.variables.get(\"taskId\")",
               "  );",
               "  pm.expect(",
               "    data.task.memo,",
               "    \"the task's memo must be a memo from request\"",
-              "  ).to.equal(pm.variable.get(\"memo\"));",
+              "  ).to.equal(pm.variables.get(\"memo\"));",
               "});",
               ""
             ],
@@ -550,14 +533,10 @@
           }
         },
         "url": {
-          "raw": "{{base_url}}/users/:user_id/tasks/:task_id/memo",
+          "raw": "{{base_url}}/tasks/:task_id/memo",
           "host": ["{{base_url}}"],
-          "path": ["users", ":user_id", "tasks", ":task_id", "memo"],
+          "path": ["tasks", ":task_id", "memo"],
           "variable": [
-            {
-              "key": "user_id",
-              "value": "{{userId}}"
-            },
             {
               "key": "task_id",
               "value": "{{taskId}}"
@@ -617,7 +596,7 @@
               "    \"response body must have task in progress done\"",
               "  ).to.be.true;",
               "  pm.expect(data.task.id, \"the task's id must be an id from request\").to.equal(",
-              "    pm.variable.get(\"id\")",
+              "    pm.variables.get(\"taskId\")",
               "  );",
               "});",
               ""
@@ -649,14 +628,10 @@
           }
         },
         "url": {
-          "raw": "{{base_url}}/users/:user_id/tasks/:task_id",
+          "raw": "{{base_url}}/tasks/:task_id",
           "host": ["{{base_url}}"],
-          "path": ["users", ":user_id", "tasks", ":task_id"],
+          "path": ["tasks", ":task_id"],
           "variable": [
-            {
-              "key": "user_id",
-              "value": "{{userId}}"
-            },
             {
               "key": "task_id",
               "value": "{{taskId}}"
