@@ -108,4 +108,16 @@ export const taskModel = {
       [id]
     );
   },
+  async setMemo(conn: PoolConnection, id: Task["id"], memo: Task["memo"]) {
+    return await conn.execute<ResultSetHeader>(
+      `
+      UPDATE task
+      SET
+        memo = ?
+      WHERE
+        id = ?;
+      `,
+      [memo, id]
+    );
+  },
 };

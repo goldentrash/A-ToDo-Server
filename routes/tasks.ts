@@ -13,6 +13,53 @@ import type { Task, Todo, Doing, Done } from "model";
 export const tasksRouter = express.Router();
 
 tasksRouter
+  .route("/:task_id/memo")
+  // update memo
+  .put(
+    genContentNegotiator(["json"]),
+    userAuthenticator,
+    asyncHandlerWrapper(async (req, res, next) => {
+      const connection = await pool.getConnection();
+      await connection.beginTransaction();
+
+      try {
+        const { task_id } = req.params;
+        const { user_id } = res.locals;
+        const { memo } = req.body;
+        if (!memo) throw createError(400, "missing properties");
+        await taskModel
+          .setMemo(connection, task_id, memo)
+          .catch((err: QueryError) => {
+            if (err.code === "ER_DATA_TOO_LONG")
+              throw createError(400, "memo too long");
+
+            if (err.code === "ER_TRUNCATED_WRONG_VALUE")
+              throw createError(400, "invalid task id");
+
+            throw err;
+          });
+
+        const [rows] = await taskModel.find(connection, task_id);
+        if (rows.length === 0) throw createError(400, "invalid task id");
+
+        connection.commit();
+
+        userModel.updateAccessTime(connection, user_id);
+        return res.status(200).json({
+          message: "memo updated",
+          data: { task: rows[0] },
+        });
+      } catch (err) {
+        connection.rollback();
+        return next(err);
+      } finally {
+        connection.release();
+      }
+    })
+  )
+  .all(genMethodNotAllowedHandler(["PUT"]));
+
+tasksRouter
   .route("/:task_id")
   // progress task
   .patch(
@@ -39,9 +86,19 @@ tasksRouter
 
               throw err;
             });
-        else if (action === "finish") {
-          action; // finish는 todo에서 바로 finish가는거 확인해봐야 할 듯
-        } else throw createError(400, "invalid properties");
+        else if (action === "finish")
+          await taskModel
+            .finish(connection, task_id)
+            .catch((err: QueryError) => {
+              if (err.code === "ER_CHECK_CONSTRAINT_VIOLATED")
+                throw createError(400, "unstarted task");
+
+              if (err.code === "ER_TRUNCATED_WRONG_VALUE")
+                throw createError(400, "invalid task id");
+
+              throw err;
+            });
+        else throw createError(400, "invalid properties");
 
         const [rows] = await taskModel.find(connection, task_id);
         if (rows.length === 0) throw createError(400, "invalid task id");
@@ -50,7 +107,7 @@ tasksRouter
 
         userModel.updateAccessTime(connection, user_id);
         return res.status(200).json({
-          message: "task started",
+          message: action === "start" ? "task started" : "task finished",
           data: { task: rows[0] },
         });
       } catch (err) {
