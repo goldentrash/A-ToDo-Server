@@ -24,15 +24,15 @@ usersRouter
       try {
         const { user_id: id } = req.params;
         const { password } = req.body;
-        if (!password) throw createError(400, "missing properties");
+        if (!password) throw createError(400, "Property Absent");
         if (typeof password !== "string")
-          throw createError(400, "invalid properties");
+          throw createError(400, "Property Invalid");
 
         const [rows] = await userModel.find(connection, id);
         const user = rows[0] as User;
-        if (!user) throw createError(400, "non-existent user");
+        if (!user) throw createError(400, "User Absent");
         if (!bcrypt.compare(password, user.hashed_password))
-          throw createError(400, "mismatched password");
+          throw createError(400, "Password Invalid");
 
         const token = jwt.sign(
           { userId: id },
@@ -66,9 +66,9 @@ usersRouter
 
       try {
         const { id, password } = req.body;
-        if (!id || !password) throw createError(400, "missing properties");
+        if (!id || !password) throw createError(400, "Property Absent");
         if (typeof password !== "string")
-          throw createError(400, "invalid properties");
+          throw createError(400, "Property Invalid");
 
         await userModel
           .register(connection, {
@@ -77,10 +77,10 @@ usersRouter
           })
           .catch((err: QueryError) => {
             if (err.code === "ER_DUP_ENTRY")
-              throw createError(400, "duplicated user ID");
+              throw createError(400, "User ID Duplicated");
 
             if (err.code === "ER_DATA_TOO_LONG")
-              throw createError(400, "too long user ID");
+              throw createError(400, "User ID Too Long");
 
             throw err;
           });

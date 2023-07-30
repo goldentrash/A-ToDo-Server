@@ -26,21 +26,21 @@ tasksRouter
         const { task_id } = req.params;
         const { user_id } = res.locals;
         const { memo } = req.body;
-        if (!memo) throw createError(400, "missing properties");
+        if (!memo) throw createError(400, "Property Absent");
         await taskModel
           .setMemo(connection, task_id, memo)
           .catch((err: QueryError) => {
             if (err.code === "ER_DATA_TOO_LONG")
-              throw createError(400, "memo too long");
+              throw createError(400, "Property Too Long");
 
             if (err.code === "ER_TRUNCATED_WRONG_VALUE")
-              throw createError(400, "invalid task id");
+              throw createError(400, "Task ID Invalid");
 
             throw err;
           });
 
         const [rows] = await taskModel.find(connection, task_id);
-        if (rows.length === 0) throw createError(400, "invalid task id");
+        if (rows.length === 0) throw createError(400, "Task Absent");
 
         connection.commit();
 
@@ -73,16 +73,16 @@ tasksRouter
         const { task_id } = req.params;
         const { user_id } = res.locals;
         const { action } = req.body;
-        if (!action) throw createError(400, "missing properties");
+        if (!action) throw createError(400, "Property Absent");
         if (action === "start")
           await taskModel
             .start(connection, task_id)
             .catch((err: QueryError) => {
               if (err.code === "ER_DUP_ENTRY")
-                throw createError(400, "already busy");
+                throw createError(400, "User Busy");
 
               if (err.code === "ER_TRUNCATED_WRONG_VALUE")
-                throw createError(400, "invalid task id");
+                throw createError(400, "Task ID Invalid");
 
               throw err;
             });
@@ -91,17 +91,17 @@ tasksRouter
             .finish(connection, task_id)
             .catch((err: QueryError) => {
               if (err.code === "ER_CHECK_CONSTRAINT_VIOLATED")
-                throw createError(400, "unstarted task");
+                throw createError(400, "Task Unstarted");
 
               if (err.code === "ER_TRUNCATED_WRONG_VALUE")
-                throw createError(400, "invalid task id");
+                throw createError(400, "Task ID Invalid");
 
               throw err;
             });
-        else throw createError(400, "invalid properties");
+        else throw createError(400, "Property Invalid");
 
         const [rows] = await taskModel.find(connection, task_id);
-        if (rows.length === 0) throw createError(400, "invalid task id");
+        if (rows.length === 0) throw createError(400, "Task Absent");
 
         connection.commit();
 
@@ -189,18 +189,18 @@ tasksRouter
       try {
         const { user_id } = res.locals;
         const { content, deadline } = req.body;
-        if (!content || !deadline) throw createError(400, "missing properties");
+        if (!content || !deadline) throw createError(400, "Property Absent");
         if (typeof content !== "string" || typeof deadline !== "string")
-          throw createError(400, "invalid properties");
+          throw createError(400, "Property Invalid");
 
         const [row] = await taskModel
           .register(connection, { user_id, content, deadline })
           .catch((err: QueryError) => {
             if (err.code === "ER_TRUNCATED_WRONG_VALUE")
-              throw createError(400, "invalid properties");
+              throw createError(400, "Property Invalid");
 
             if (err.code === "ER_DATA_TOO_LONG")
-              throw createError(400, "too long content");
+              throw createError(400, "Content Too Long");
 
             throw err;
           });

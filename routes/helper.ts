@@ -45,8 +45,8 @@ export const userAuthenticator = (
   next: NextFunction
 ) => {
   const [type, token] = req.get("Authorization")?.split(" ") ?? [];
-  if (type !== "Bearer") return next(createError(401, "invalid token"));
-  if (!token) return next(createError(401, "not authorized"));
+  if (type !== "Bearer") return next(createError(401, "Token Not Supported"));
+  if (!token) return next(createError(401, "Not Authorized"));
 
   try {
     const payload = jwt.verify(
@@ -56,7 +56,7 @@ export const userAuthenticator = (
     ) as jwt.JwtPayload;
     res.locals.user_id = payload.userId;
   } catch {
-    return next(createError(401, "invalid token"));
+    return next(createError(401, "Token Invalid"));
   }
 
   return next();
