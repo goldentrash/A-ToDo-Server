@@ -72,7 +72,7 @@ userRouter
       try {
         const { user_id: id } = req.params;
         const { password } = req.body;
-        if (!id || !password) throw createError(400, "missing properties");
+        if (!password) throw createError(400, "missing properties");
         if (typeof password !== "string")
           throw createError(400, "invalid properties");
 
@@ -114,7 +114,6 @@ userRouter
 
       try {
         const { user_id: id } = req.params;
-        if (!id) throw createError(400, "invalid properties");
 
         const [rows] = await taskModel.findAll(connection, id);
         const [todoList, doing, doneList] = rows.reduce<
@@ -162,4 +161,49 @@ userRouter
       }
     }
   )
-  .all(genMethodNotAllowedHandler(["GET"]));
+  // register task
+  .post(
+    genContentNegotiator(["json"]),
+    userAuthenticator,
+    asyncHandlerWrapper(async (req, res, next) => {
+      const connection = await pool.getConnection();
+      await connection.beginTransaction();
+
+      try {
+        const { user_id } = req.params;
+        const { content, deadline } = req.body;
+        if (!content || !deadline) throw createError(400, "missing properties");
+        if (typeof content !== "string" || typeof deadline !== "string")
+          throw createError(400, "invalid properties");
+
+        const [row] = await taskModel
+          .register(connection, { user_id, content, deadline })
+          .catch((err: QueryError) => {
+            if (err.code === "ER_TRUNCATED_WRONG_VALUE")
+              throw createError(400, "invalid properties");
+
+            if (err.code === "ER_DATA_TOO_LONG")
+              throw createError(400, "too long content");
+
+            throw err;
+          });
+        const [rows] = await taskModel.find(
+          connection,
+          row.insertId.toString()
+        );
+
+        connection.commit();
+
+        return res.status(201).json({
+          message: "task created",
+          data: { task: rows[0] },
+        });
+      } catch (err) {
+        connection.rollback();
+        return next(err);
+      } finally {
+        connection.release();
+      }
+    })
+  )
+  .all(genMethodNotAllowedHandler(["GET", "POST"]));

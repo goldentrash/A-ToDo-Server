@@ -16,7 +16,10 @@ export const userModel = {
     return await conn.execute<RowDataPacket[]>(
       `
       SELECT
-        *
+        id,
+        hashed_password,
+        registerd_at,
+        last_accessed_at
       FROM
         user
       WHERE

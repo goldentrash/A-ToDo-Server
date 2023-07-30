@@ -26,7 +26,15 @@ export const taskModel = {
     return await conn.execute<RowDataPacket[]>(
       `
       SELECT
-        *
+        id,
+        progress,
+        user_id,
+        content,
+        memo,
+        deadline,
+        registerd_at,
+        started_at,
+        finished_at
       FROM
         task
       WHERE
@@ -35,23 +43,43 @@ export const taskModel = {
       [user_id]
     );
   },
+  async find(conn: PoolConnection, id: Task["id"]) {
+    return await conn.execute<RowDataPacket[]>(
+      `
+      SELECT
+        id,
+        progress,
+        user_id,
+        content,
+        memo,
+        deadline,
+        registerd_at,
+        started_at,
+        finished_at
+      FROM
+        task
+      WHERE
+        id = ?;
+      `,
+      [id]
+    );
+  },
   async register(
     conn: PoolConnection,
     {
-      id,
       user_id,
       content,
       deadline,
-    }: Pick<Task, "id" | "user_id" | "content" | "deadline">
+    }: Pick<Task, "user_id" | "content" | "deadline">
   ) {
     return await conn.execute<ResultSetHeader>(
       `
       INSERT INTO
-        task (id, user_id, content, deadline)
+        task (user_id, content, deadline)
       VALUES
-        (?, ?, ?, ?);
+        (?, ?, ?);
       `,
-      [id, user_id, content, deadline]
+      [user_id, content, deadline]
     );
   },
   async start(conn: PoolConnection, id: Task["id"]) {
