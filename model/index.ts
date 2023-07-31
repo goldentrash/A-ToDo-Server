@@ -8,7 +8,5 @@ export const pool = mysql.createPool({
   dateStrings: true,
 });
 
-export { userModel } from "./user";
-export type { User } from "./user";
-export { taskModel } from "./task";
-export type { Task, Todo, Doing, Done } from "./task";
+export { userModel, type User } from "./user";
+export { taskModel, type Task, type Todo, type Doing, type Done } from "./task";

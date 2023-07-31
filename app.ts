@@ -1,9 +1,12 @@
 import debug from "debug";
 import createError, { HttpError } from "http-errors";
 import logger from "morgan";
-import express from "express";
-import type { Request, Response, NextFunction } from "express";
-import { usersRouter, tasksRouter } from "routes";
+import express, {
+  type Request,
+  type Response,
+  type NextFunction,
+} from "express";
+import { usersRouter, tasksRouter } from "router";
 
 const errStream = debug("a-todo:error");
 const logStream = debug("a-todo:log");

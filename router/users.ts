@@ -2,14 +2,13 @@ import express from "express";
 import createError from "http-errors";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import type { QueryError } from "mysql2";
+import { type QueryError } from "mysql2";
 import {
   asyncHandlerWrapper,
   genContentNegotiator,
   genMethodNotAllowedHandler,
-} from "routes/helper";
-import { pool, userModel } from "model";
-import type { User } from "model";
+} from "router/helper";
+import { pool, userModel, type User } from "model";
 
 export const usersRouter = express.Router();
 

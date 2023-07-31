@@ -1,23 +1,30 @@
 import express from "express";
 import createError from "http-errors";
-import type { QueryError } from "mysql2";
+import { type QueryError } from "mysql2";
 import {
   asyncHandlerWrapper,
   genContentNegotiator,
   genMethodNotAllowedHandler,
   userAuthenticator,
-} from "routes/helper";
-import { pool, userModel, taskModel } from "model";
-import type { Task, Todo, Doing, Done } from "model";
+} from "router/helper";
+import {
+  pool,
+  userModel,
+  taskModel,
+  type Task,
+  type Todo,
+  type Doing,
+  type Done,
+} from "model";
 
 export const tasksRouter = express.Router();
+tasksRouter.use(userAuthenticator);
 
 tasksRouter
   .route("/:task_id/memo")
   // update memo
   .put(
     genContentNegotiator(["json"]),
-    userAuthenticator,
     asyncHandlerWrapper(async (req, res, next) => {
       const connection = await pool.getConnection();
       await connection.beginTransaction();
@@ -64,7 +71,6 @@ tasksRouter
   // progress task
   .patch(
     genContentNegotiator(["json"]),
-    userAuthenticator,
     asyncHandlerWrapper(async (req, res, next) => {
       const connection = await pool.getConnection();
       await connection.beginTransaction();
@@ -125,8 +131,7 @@ tasksRouter
   // get tasks
   .get(
     genContentNegotiator(["json"]),
-    userAuthenticator,
-    async (_req, res, next) => {
+    asyncHandlerWrapper(async (_req, res, next) => {
       const connection = await pool.getConnection();
 
       try {
@@ -176,12 +181,11 @@ tasksRouter
       } finally {
         connection.release();
       }
-    }
+    })
   )
   // register task
   .post(
     genContentNegotiator(["json"]),
-    userAuthenticator,
     asyncHandlerWrapper(async (req, res, next) => {
       const connection = await pool.getConnection();
       await connection.beginTransaction();
