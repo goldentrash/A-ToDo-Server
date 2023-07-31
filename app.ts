@@ -52,7 +52,7 @@ app.use((err: unknown, req: Request, res: Response, _next: NextFunction) => {
       },
     });
 
-  return res.status(status).json({ message });
+  return res.status(status).json({ error: message });
 });
 
 export = app;

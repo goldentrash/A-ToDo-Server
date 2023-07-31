@@ -24,7 +24,7 @@ export const genContentNegotiator =
   (req: Request, res: Response, next: NextFunction) => {
     if (!req.accepts(contentTypes))
       return res.status(406).json({
-        message: "Not Acceptable",
+        error: "Not Acceptable",
         acceptables: contentTypes,
       });
     else return next();
@@ -35,7 +35,7 @@ export const genMethodNotAllowedHandler =
   (allowedMethods: HttpMethod[]) =>
   (_req: Request, res: Response, _next: NextFunction) => {
     return res.status(406).set("Allow", allowedMethods.join(", ")).json({
-      message: "Method Not Allowed",
+      error: "Method Not Allowed",
     });
   };
 
