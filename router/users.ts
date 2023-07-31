@@ -30,7 +30,7 @@ usersRouter
         const [rows] = await userModel.find(connection, id);
         const user = rows[0] as User;
         if (!user) throw createError(400, "User Absent");
-        if (!bcrypt.compare(password, user.hashed_password))
+        if (!(await bcrypt.compare(password, user.hashed_password)))
           throw createError(400, "Password Invalid");
 
         const token = jwt.sign(
