@@ -11,11 +11,11 @@
   "scripts": {
     "prepare": "husky install",
     "start": "concurrently \"tsc --watch\" \"tsc-alias --watch\" \"node --watch ./bin/www\"",
-    "init:db": "./script/db_init.sh",
-    "pretest": "yarn init:db",
-    "test": "yarn newman run -e test/local.postman_environment.json -d test/variables.json \"test/functionality test.postman_collection.json\"",
-    "prebuild": "yarn test",
-    "build": "tsc && tsc-alias && docker build --tag goldentrash/a-todo-server:latest .",
+    "pretest": "script/init_db.sh",
+    "test": "script/test_e2e.sh",
+    "build": "yarn build:dist && yarn build:image",
+    "build:dist": "tsc && tsc-alias",
+    "build:image": "docker build --tag goldentrash/a-todo-server:latest .",
     "postbuild": "docker push goldentrash/a-todo-server"
   },
   "dependencies": {
