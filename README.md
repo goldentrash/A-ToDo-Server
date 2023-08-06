@@ -5,3 +5,6 @@
 # REST API
 
 see [Postman workspace](https://www.postman.com/whitepianow/workspace/a-todo)
+
+## version comments
+see [wiki](https://github.com/goldentrash/A-ToDo-Server/wiki)
