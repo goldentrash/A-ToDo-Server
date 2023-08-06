@@ -1,12 +1,12 @@
 import debug from "debug";
-import createError from "http-errors";
-import express from "express";
+import createError, { HttpError } from "http-errors";
 import logger from "morgan";
-import todoRouter from "routes/todo";
-import doingRouter from "routes/doing";
-import doneRouter from "routes/done";
-import { HttpError } from "http-errors";
-import type { Request, Response, NextFunction } from "express";
+import express, {
+  type Request,
+  type Response,
+  type NextFunction,
+} from "express";
+import { usersRouter, tasksRouter } from "router";
 
 const errStream = debug("a-todo:error");
 const logStream = debug("a-todo:log");
@@ -21,9 +21,8 @@ app.use(
 );
 app.use(express.json());
 
-app.use("/todos", todoRouter);
-app.use("/doings", doingRouter);
-app.use("/dones", doneRouter);
+app.use("/users", usersRouter);
+app.use("/tasks", tasksRouter);
 
 // catch 404 and forward to error handler
 app.use((_req, _res, next: NextFunction) => {
@@ -38,12 +37,11 @@ app.use((err: unknown, req: Request, res: Response, _next: NextFunction) => {
   if (err instanceof HttpError) {
     status = err.status;
     message = err.message;
-  } else if (err instanceof Error) {
-    status = 500;
-    message = err.message;
   } else {
     status = 500;
     message = "Internal Server Error";
+
+    errStream(err);
   }
 
   if (status >= 500)
@@ -56,7 +54,7 @@ app.use((err: unknown, req: Request, res: Response, _next: NextFunction) => {
       },
     });
 
-  return res.status(status).json({ message });
+  return res.status(status).json({ error: message });
 });
 
 export = app;
