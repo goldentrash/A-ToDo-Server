@@ -40,6 +40,8 @@ app.use((err: unknown, req: Request, res: Response, _next: NextFunction) => {
   } else {
     status = 500;
     message = "Internal Server Error";
+
+    errStream(err);
   }
 
   if (status >= 500)
