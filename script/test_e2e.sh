@@ -1,7 +1,8 @@
 #! /bin/sh
 
 # run server
-yarn build:dist && node ./bin/www &
+yarn build:dist
+node ./bin/www &
 PID=$!
 
 # run test
