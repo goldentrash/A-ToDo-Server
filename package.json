@@ -16,7 +16,8 @@
     "build": "yarn build:dist && yarn build:image",
     "build:dist": "tsc && tsc-alias",
     "build:image": "docker build --tag goldentrash/a-todo-server:latest .",
-    "postbuild": "docker push goldentrash/a-todo-server"
+    "postbuild": "docker push goldentrash/a-todo-server",
+    "update:image": "script/update_image.sh"
   },
   "dependencies": {
     "bcrypt": "^5.1.0",
