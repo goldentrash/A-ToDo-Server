@@ -131,11 +131,18 @@ tasksRouter
   // get tasks
   .get(
     genContentNegotiator(["json"]),
-    asyncHandlerWrapper(async (_req, res, next) => {
+    asyncHandlerWrapper(async (req, res, next) => {
       const connection = await pool.getConnection();
 
       try {
         const { user_id } = res.locals;
+        const { sort, progress } = req.query;
+        const option = {
+          sort,
+          filter: {
+            progress: Array.isArray(progress) ? progress : [progress],
+          },
+        };
 
         const [rows] = await taskModel.findByUser(connection, user_id);
         const [todoList, doing, doneList] = rows.reduce<

@@ -40,19 +40,17 @@ app.use((err: unknown, req: Request, res: Response, _next: NextFunction) => {
   } else {
     status = 500;
     message = "Internal Server Error";
-
-    errStream(err);
   }
 
-  if (status >= 500)
-    errStream("%O", {
-      err: `${status} ${message}`,
-      request: {
-        startLine: `${req.method} ${req.originalUrl} ${req.protocol}`,
-        headers: req.headers,
-        body: req.body,
-      },
-    });
+  errStream("%O", {
+    err: `${status} ${message}`,
+    ...(status >= 500 && { errDetail: err }),
+    request: {
+      startLine: `${req.method} ${req.originalUrl} ${req.protocol}`,
+      headers: req.headers,
+      body: req.body,
+    },
+  });
 
   return res.status(status).json({ error: message });
 });
