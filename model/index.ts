@@ -10,5 +10,12 @@ export const pool = mysql.createPool({
   dateStrings: true,
 });
 
-export { userModel, type User } from "./user";
-export { taskModel, type Task, type Todo, type Doing, type Done } from "./task";
+export { default as userModel, userDAO, type User, type UserDAO } from "./user";
+export {
+  taskDAO,
+  type Task,
+  type Todo,
+  type Doing,
+  type Done,
+  type TaskDAO,
+} from "./task";

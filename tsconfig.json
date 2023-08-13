@@ -1,5 +1,11 @@
 {
-  "include": ["model/**/*", "router/**/*", "app.ts"],
+  "include": [
+    "event/**/*",
+    "model/**/*",
+    "router/**/*",
+    "service/**/*",
+    "app.ts"
+  ],
   "compilerOptions": {
     /* Visit https://aka.ms/tsconfig to read more about this file */
 
