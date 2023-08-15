@@ -5,50 +5,50 @@ import {
   genContentNegotiator,
   genMethodNotAllowedHandler,
 } from "router/helper";
-import { userDAO } from "model";
-import { genUserService } from "service";
+import { type UserService } from "service";
 
-const userService = genUserService(userDAO);
+export const genUsersRouter = (userService: UserService) => {
+  const usersRouter = express.Router();
 
-export const usersRouter = express.Router();
+  usersRouter
+    .route("/:user_id/token")
+    // sign in
+    .post(
+      genContentNegotiator(["json"]),
+      asyncHandlerWrapper(async (req, res, next) => {
+        const { user_id: id } = req.params;
+        const { password } = req.body;
+        if (!password) return next(createError(400, "Property Absent"));
+        if (typeof password !== "string")
+          return next(createError(400, "Property Invalid"));
 
-usersRouter
-  .route("/:user_id/token")
-  // sign in
-  .post(
-    genContentNegotiator(["json"]),
-    asyncHandlerWrapper(async (req, res, next) => {
-      const { user_id: id } = req.params;
-      const { password } = req.body;
-      if (!password) return next(createError(400, "Property Absent"));
-      if (typeof password !== "string")
-        return next(createError(400, "Property Invalid"));
+        const token = await userService.signIn(id, password);
+        return res.status(200).json({
+          message: "Access Accepted",
+          data: { token },
+        });
+      })
+    )
+    .all(genMethodNotAllowedHandler(["POST"]));
 
-      const token = await userService.signIn(id, password);
-      return res.status(200).json({
-        message: "Access Accepted",
-        data: { token },
-      });
-    })
-  )
-  .all(genMethodNotAllowedHandler(["POST"]));
+  usersRouter
+    .route("/")
+    // sign up
+    .post(
+      genContentNegotiator(["json"]),
+      asyncHandlerWrapper(async (req, res, next) => {
+        const { id, password } = req.body;
+        if (!id || !password) return next(createError(400, "Property Absent"));
+        if (typeof password !== "string")
+          return next(createError(400, "Property Invalid"));
 
-usersRouter
-  .route("/")
-  // sign up
-  .post(
-    genContentNegotiator(["json"]),
-    asyncHandlerWrapper(async (req, res, next) => {
-      const { id, password } = req.body;
-      if (!id || !password) return next(createError(400, "Property Absent"));
-      if (typeof password !== "string")
-        return next(createError(400, "Property Invalid"));
+        await userService.signUp(id, password);
+        return res.status(201).json({
+          message: "User Created",
+        });
+      })
+    )
+    .all(genMethodNotAllowedHandler(["POST"]));
 
-      const createdUser = await userService.signUp(id, password);
-      return res.status(201).json({
-        message: "User Created",
-        data: { user: createdUser },
-      });
-    })
-  )
-  .all(genMethodNotAllowedHandler(["POST"]));
+  return usersRouter;
+};

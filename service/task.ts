@@ -1,122 +1,103 @@
-import {
-  pool,
-  type UserDAO,
-  type TaskDAO,
-  type Task,
-  type Todo,
-  type Doing,
-  type Done,
-} from "model";
-import { userChannel } from "event";
+import createError from "http-errors";
+import { pool } from "repository";
+import { type TaskDAO } from "./type";
 
-export const genTaskService = (taskDAO: TaskDAO, userDAO: UserDAO) => ({
-  async updateMemo(id: string, memo: string, user_id: string) {
-    const connection = await pool.getConnection();
-    await connection.beginTransaction();
+export type TaskService = ReturnType<typeof genTaskService>;
 
-    try {
-      await taskDAO.setMemo(connection, id, memo);
-      const updatedTask = await taskDAO.find(connection, id);
-
-      connection.commit();
-      return updatedTask;
-    } catch (err) {
-      connection.rollback();
-      throw err;
-    } finally {
-      userChannel.emit("access", connection, userDAO, user_id);
-      connection.release();
-    }
-  },
-  async startTask(id: string, user_id: string) {
-    const connection = await pool.getConnection();
-    await connection.beginTransaction();
-
-    try {
-      await taskDAO.start(connection, id);
-      const startedTask = await taskDAO.find(connection, id);
-
-      connection.commit();
-      return startedTask;
-    } catch (err) {
-      connection.rollback();
-      throw err;
-    } finally {
-      userChannel.emit("access", connection, userDAO, user_id);
-      connection.release();
-    }
-  },
-  async finishTask(id: string, user_id: string) {
-    const connection = await pool.getConnection();
-    await connection.beginTransaction();
-
-    try {
-      await taskDAO.finish(connection, id);
-      const finishedTask = await taskDAO.find(connection, id);
-
-      connection.commit();
-      return finishedTask;
-    } catch (err) {
-      connection.rollback();
-      throw err;
-    } finally {
-      userChannel.emit("access", connection, userDAO, user_id);
-      connection.release();
-    }
-  },
+export const genTaskService = (taskRepo: TaskDAO) => ({
   async getTasksByUser(user_id: string) {
-    const connection = await pool.getConnection();
+    const conn = await pool.getConnection();
 
     try {
-      const taskArr = await taskDAO.findByUser(connection, user_id);
-      const [todoList, doing, doneList] = taskArr.reduce<
-        [Todo[], Doing | null, Done[]]
-      >(
-        (acc, curr: Task) => {
-          const [todoList, doing, doneList] = acc;
-
-          switch (curr.progress) {
-            case "todo":
-              return [[curr, ...todoList], doing, doneList];
-            case "doing":
-              return [todoList, curr, doneList];
-            case "done":
-              return [todoList, doing, [curr, ...doneList]];
-            default:
-              return ((_: never): never => {
-                throw Error("unreachable case");
-              })(curr);
-          }
-        },
-        [[], null, []]
-      );
-
-      return [todoList, doing, doneList];
+      const taskDTOs = await taskRepo.findByUser(conn, user_id);
+      return taskDTOs;
     } finally {
-      userChannel.emit("access", connection, userDAO, user_id);
-      connection.release();
+      conn.release();
     }
   },
   async register(user_id: string, content: string, deadline: string) {
-    const connection = await pool.getConnection();
-    await connection.beginTransaction();
+    const conn = await pool.getConnection();
 
     try {
-      const insertId = await taskDAO.register(connection, {
+      await conn.beginTransaction();
+
+      const insertId = await taskRepo.register(conn, {
         user_id,
         content,
         deadline,
       });
-      const registeredTask = await taskDAO.find(connection, insertId);
+      const taskDTO = await taskRepo.find(conn, insertId);
 
-      connection.commit();
-      return registeredTask;
+      conn.commit();
+      return taskDTO;
     } catch (err) {
-      connection.rollback();
+      conn.rollback();
       throw err;
     } finally {
-      userChannel.emit("access", connection, userDAO, user_id);
-      connection.release();
+      conn.release();
+    }
+  },
+  async startTask(id: string, user_id: string) {
+    const conn = await pool.getConnection();
+
+    try {
+      await conn.beginTransaction();
+
+      const taskDTO = await taskRepo.find(conn, id);
+      if (taskDTO.user_id !== user_id) throw createError(403, "Forbidden");
+
+      taskDTO.progress = "doing";
+      await taskRepo.start(conn, taskDTO);
+
+      conn.commit();
+      return taskDTO;
+    } catch (err) {
+      conn.rollback();
+      throw err;
+    } finally {
+      conn.release();
+    }
+  },
+  async finishTask(id: string, user_id: string) {
+    const conn = await pool.getConnection();
+
+    try {
+      await conn.beginTransaction();
+
+      const taskDTO = await taskRepo.find(conn, id);
+      if (taskDTO.user_id !== user_id) throw createError(403, "Forbidden");
+
+      taskDTO.progress = "done";
+      await taskRepo.finish(conn, taskDTO);
+
+      conn.commit();
+      return taskDTO;
+    } catch (err) {
+      conn.rollback();
+      throw err;
+    } finally {
+      conn.release();
+    }
+  },
+  async updateMemo(id: string, user_id: string, memo: string) {
+    const conn = await pool.getConnection();
+
+    try {
+      await conn.beginTransaction();
+
+      const taskDTO = await taskRepo.find(conn, id);
+      if (taskDTO.user_id !== user_id) throw createError(403, "Forbidden");
+
+      taskDTO.memo = memo;
+      await taskRepo.setMemo(conn, taskDTO);
+
+      conn.commit();
+      return taskDTO;
+    } catch (err) {
+      conn.rollback();
+      throw err;
+    } finally {
+      conn.release();
     }
   },
 });

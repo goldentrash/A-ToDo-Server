@@ -1,56 +1,26 @@
 import {
-  type ResultSetHeader,
   type PoolConnection,
+  type ResultSetHeader,
   type RowDataPacket,
   type QueryError,
 } from "mysql2/promise";
 import createError from "http-errors";
+import { type TaskDAO, type TaskDTO } from "service";
 
-type TaskBase = {
+type TaskEntity = {
   id: string;
   user_id: string;
+  progress: "todo" | "doing" | "done";
   content: string;
   memo: string;
   deadline: string;
   registerd_at: string;
+  started_at: string | null;
+  finished_at: string | null;
 };
-export type Todo = TaskBase & { progress: "todo" };
-export type Doing = TaskBase & { progress: "doing"; started_at: string };
-export type Done = TaskBase & {
-  progress: "done";
-  started_at: string;
-  finished_at: string;
-};
-export type Task = Todo | Doing | Done;
 
-export type TaskDAO = typeof taskDAO;
-
-export const taskDAO = {
-  findByUser(conn: PoolConnection, user_id: Task["user_id"]) {
-    const sql = `
-      SELECT
-        id,
-        progress,
-        user_id,
-        content,
-        memo,
-        deadline,
-        registerd_at,
-        started_at,
-        finished_at
-      FROM
-        task
-      WHERE
-        user_id = ?;
-      `;
-
-    return new Promise<Task[]>((resolve, _reject) => {
-      conn.execute<RowDataPacket[]>(sql, [user_id]).then(([taskArr]) => {
-        return resolve(taskArr as Task[]);
-      });
-    });
-  },
-  find(conn: PoolConnection, id: Task["id"]) {
+export const taskRepo: TaskDAO = {
+  find(conn: PoolConnection, id: TaskDTO["id"]) {
     const sql = `
       SELECT
         id,
@@ -68,11 +38,44 @@ export const taskDAO = {
         id = ?;
       `;
 
-    return new Promise<Task>((resolve, reject) => {
-      conn.execute<RowDataPacket[]>(sql, [id]).then(([[task]]) => {
-        if (!task) return reject(createError(400, "Task Absent"));
+    return new Promise<TaskDTO>((resolve, reject) => {
+      conn.execute<RowDataPacket[]>(sql, [id]).then(([[taskEntity]]) => {
+        if (!taskEntity) return reject(createError(400, "Task Absent"));
 
-        return resolve(task as Task);
+        const { id, user_id, progress, content, memo, deadline }: TaskDTO =
+          taskEntity as TaskEntity;
+        return resolve({ id, user_id, progress, content, memo, deadline });
+      });
+    });
+  },
+  findByUser(conn: PoolConnection, user_id: TaskDTO["user_id"]) {
+    const sql = `
+      SELECT
+        id,
+        progress,
+        user_id,
+        content,
+        memo,
+        deadline,
+        registerd_at,
+        started_at,
+        finished_at
+      FROM
+        task
+      WHERE
+        user_id = ?;
+      `;
+
+    return new Promise<TaskDTO[]>((resolve, _reject) => {
+      conn.execute<RowDataPacket[]>(sql, [user_id]).then(([taskEntityArr]) => {
+        const taskDTOs: TaskDTO[] = taskEntityArr.map((taskEntity) => {
+          const { id, user_id, progress, content, memo, deadline }: TaskDTO =
+            taskEntity as TaskEntity;
+
+          return { id, user_id, progress, content, memo, deadline };
+        });
+
+        return resolve(taskDTOs);
       });
     });
   },
@@ -82,7 +85,7 @@ export const taskDAO = {
       user_id,
       content,
       deadline,
-    }: Pick<Task, "user_id" | "content" | "deadline">
+    }: Pick<TaskDTO, "user_id" | "content" | "deadline">
   ) {
     const sql = `
       INSERT INTO
@@ -91,7 +94,7 @@ export const taskDAO = {
         (?, ?, ?);
       `;
 
-    return new Promise<string>((resolve, reject) => {
+    return new Promise<TaskDTO["id"]>((resolve, reject) => {
       conn
         .execute<ResultSetHeader>(sql, [user_id, content, deadline])
         .then(([{ insertId }]) => {
@@ -108,7 +111,7 @@ export const taskDAO = {
         });
     });
   },
-  start(conn: PoolConnection, id: Task["id"]) {
+  start(conn: PoolConnection, { id }: TaskDTO) {
     const sql = `
       UPDATE task
       SET
@@ -133,7 +136,7 @@ export const taskDAO = {
         });
     });
   },
-  finish(conn: PoolConnection, id: Task["id"]) {
+  finish(conn: PoolConnection, { id }: TaskDTO) {
     const sql = `
       UPDATE task
       SET
@@ -158,7 +161,7 @@ export const taskDAO = {
         });
     });
   },
-  setMemo(conn: PoolConnection, id: Task["id"], memo: Task["memo"]) {
+  setMemo(conn: PoolConnection, { id, memo }: TaskDTO) {
     const sql = `
       UPDATE task
       SET

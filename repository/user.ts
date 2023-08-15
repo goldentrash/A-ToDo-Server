@@ -1,39 +1,21 @@
 import {
-  type ResultSetHeader,
   type PoolConnection,
+  type ResultSetHeader,
   type RowDataPacket,
   type QueryError,
 } from "mysql2/promise";
 import createError from "http-errors";
-import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
+import { type UserDAO, type UserDTO } from "service";
 
-export type User = {
+type UserEntity = {
   id: string;
   hashed_password: string;
   registerd_at: string;
   last_accessed_at: string;
 };
 
-export default {
-  checkPassword: async (user: User, password: string) => {
-    const ret = await bcrypt.compare(password, user.hashed_password);
-    if (!ret) throw createError(400, "Password Invalid");
-  },
-  hashPassword: (password: string) => bcrypt.hash(password, 5),
-  makeToken: (user: User) =>
-    jwt.sign(
-      { userId: user.id },
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      process.env.JWT_SECRET!,
-      { expiresIn: "1 days" }
-    ),
-};
-
-export type UserDAO = typeof userDAO;
-
-export const userDAO = {
-  find(conn: PoolConnection, id: User["id"]) {
+export const userRepo: UserDAO = {
+  find(conn: PoolConnection, id: UserDTO["id"]) {
     const sql = `
       SELECT
         id,
@@ -46,15 +28,16 @@ export const userDAO = {
         id = ?;
       `;
 
-    return new Promise<User>((resolve, reject) => {
-      conn.execute<RowDataPacket[]>(sql, [id]).then(([[user]]) => {
-        if (!user) return reject(createError(400, "User Absent"));
+    return new Promise<UserDTO>((resolve, reject) => {
+      conn.execute<RowDataPacket[]>(sql, [id]).then(([[userEntity]]) => {
+        if (!userEntity) return reject(createError(400, "User Absent"));
 
-        return resolve(user as User);
+        const { id, hashed_password }: UserDTO = userEntity as UserEntity;
+        return resolve({ id, hashed_password });
       });
     });
   },
-  updateAccessTime(conn: PoolConnection, id: User["id"]) {
+  updateAccessTime(conn: PoolConnection, id: UserDTO["id"]) {
     const sql = `
       UPDATE user
       SET
@@ -67,10 +50,7 @@ export const userDAO = {
       conn.execute<ResultSetHeader>(sql, [id]).then(() => resolve());
     });
   },
-  register(
-    conn: PoolConnection,
-    { id, hashed_password }: Pick<User, "id" | "hashed_password">
-  ) {
+  register(conn: PoolConnection, { id, hashed_password }: UserDTO) {
     const sql = `
       INSERT INTO
         user (id, hashed_password)

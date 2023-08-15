@@ -1,7 +1,7 @@
 {
   "include": [
-    "event/**/*",
-    "model/**/*",
+    "domain/**/*",
+    "repository/**/*",
     "router/**/*",
     "service/**/*",
     "app.ts"
