@@ -3,6 +3,10 @@
 # Exit local mysql before running this script
 # $ sudo service mysql stop
 
+# And then build the app image
+# $ yarn build:dist
+# $ yarn build:image
+
 # At the end of this script, run the commands below
 # $ mysql --protocol=tcp --user=root < a_todo.sql
 # $ docker stats app db
