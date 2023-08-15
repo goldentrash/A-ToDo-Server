@@ -5,7 +5,7 @@
 
 # At the end of this script, run the commands below
 # $ mysql --protocol=tcp --user=root < a_todo.sql
-# $ run the docker stats app db
+# $ docker stats app db
 
 # Then do the performance test!
 
