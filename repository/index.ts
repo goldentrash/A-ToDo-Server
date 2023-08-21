@@ -10,5 +10,5 @@ export const pool = mysql.createPool({
   dateStrings: true,
 });
 
-export { userModel, type User } from "./user";
-export { taskModel, type Task, type Todo, type Doing, type Done } from "./task";
+export { userRepo } from "./user";
+export { taskRepo } from "./task";
