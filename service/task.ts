@@ -1,15 +1,15 @@
 import createError from "http-errors";
 import { pool } from "repository";
-import { type TaskDAO } from "./type";
+import { type TaskDAO, type SearchOption } from "./type";
 
 export type TaskService = ReturnType<typeof genTaskService>;
 
 export const genTaskService = (taskRepo: TaskDAO) => ({
-  async getTasksByUser(user_id: string) {
+  async getTasksByUser(user_id: string, searchOption: SearchOption) {
     const conn = await pool.getConnection();
 
     try {
-      const taskDTOs = await taskRepo.findByUser(conn, user_id);
+      const taskDTOs = await taskRepo.findByUser(conn, user_id, searchOption);
       return taskDTOs;
     } finally {
       conn.release();

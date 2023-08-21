@@ -5,7 +5,12 @@ import {
   genContentNegotiator,
   genMethodNotAllowedHandler,
 } from "router/helper";
-import { TaskDTO, type TaskService, type UserService } from "service";
+import {
+  type TaskDTO,
+  type TaskService,
+  type UserService,
+  type SearchOption,
+} from "service";
 
 export const genTasksRouter = (
   taskService: TaskService,
@@ -93,15 +98,14 @@ export const genTasksRouter = (
         const { user_id } = userService.verify(authorization);
         await userService.updateAccessTime(user_id);
 
-        // const { sort, progress } = req.query;
-        // const option = {
-        //   sort,
-        //   filter: {
-        //     progress: Array.isArray(progress) ? progress : [progress],
-        //   },
-        // };
+        const option: SearchOption = { sort: null, filter: { progress: null } };
+        const { sort, progress } = req.query;
+        if (sort === "deadline") option.sort = "deadline";
+        if (typeof progress === "string") option.filter.progress = [progress];
+        if (Array.isArray(progress))
+          option.filter.progress = progress as string[];
 
-        const taskArr = await taskService.getTasksByUser(user_id);
+        const taskArr = await taskService.getTasksByUser(user_id, option);
         const [todoList, doing, doneList] = taskArr.reduce<
           [TaskDTO[], TaskDTO | null, TaskDTO[]]
         >(

@@ -20,11 +20,17 @@ export type TaskDTO = {
   deadline: string;
 };
 
+export type SearchOption = {
+  sort: keyof TaskDTO | null;
+  filter: { progress: string[] | null };
+};
+
 export type TaskDAO = {
   find(conn: PoolConnection, id: TaskDTO["id"]): Promise<TaskDTO>;
   findByUser(
     conn: PoolConnection,
-    user_id: TaskDTO["user_id"]
+    user_id: TaskDTO["user_id"],
+    searchOption: SearchOption
   ): Promise<TaskDTO[]>;
   register(
     conn: PoolConnection,

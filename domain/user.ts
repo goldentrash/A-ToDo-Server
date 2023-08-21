@@ -37,10 +37,14 @@ export class UserDomain {
   }
 
   static verifyToken(token: string) {
-    return jwt.verify(
-      token,
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      process.env.JWT_SECRET!
-    ) as TokenPayload;
+    try {
+      return jwt.verify(
+        token,
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        process.env.JWT_SECRET!
+      ) as TokenPayload;
+    } catch {
+      throw createError(400, "Token Invalid");
+    }
   }
 }

@@ -5,7 +5,7 @@ import {
   type QueryError,
 } from "mysql2/promise";
 import createError from "http-errors";
-import { type TaskDAO, type TaskDTO } from "service";
+import { type TaskDAO, type TaskDTO, type SearchOption } from "service";
 
 type TaskEntity = {
   id: string;
@@ -48,7 +48,11 @@ export const taskRepo: TaskDAO = {
       });
     });
   },
-  findByUser(conn: PoolConnection, user_id: TaskDTO["user_id"]) {
+  findByUser(
+    conn: PoolConnection,
+    user_id: TaskDTO["user_id"],
+    { sort, filter: { progress } }: SearchOption
+  ) {
     const sql = `
       SELECT
         id,
@@ -63,20 +67,32 @@ export const taskRepo: TaskDAO = {
       FROM
         task
       WHERE
-        user_id = ?;
+        user_id = ?
+        ${
+          progress
+            ? `AND progress IN (${"?"
+                .repeat(progress.length)
+                .split("")
+                .join(", ")})`
+            : ``
+        }
+      ORDER BY 
+        ${sort ? conn.escapeId(sort) : "NULL"};
       `;
 
     return new Promise<TaskDTO[]>((resolve, _reject) => {
-      conn.execute<RowDataPacket[]>(sql, [user_id]).then(([taskEntityArr]) => {
-        const taskDTOs: TaskDTO[] = taskEntityArr.map((taskEntity) => {
-          const { id, user_id, progress, content, memo, deadline }: TaskDTO =
-            taskEntity as TaskEntity;
+      conn
+        .execute<RowDataPacket[]>(sql, [user_id, ...(progress ?? [])])
+        .then(([taskEntityArr]) => {
+          const taskDTOs: TaskDTO[] = taskEntityArr.map((taskEntity) => {
+            const { id, user_id, progress, content, memo, deadline }: TaskDTO =
+              taskEntity as TaskEntity;
 
-          return { id, user_id, progress, content, memo, deadline };
+            return { id, user_id, progress, content, memo, deadline };
+          });
+
+          return resolve(taskDTOs);
         });
-
-        return resolve(taskDTOs);
-      });
     });
   },
   register(
