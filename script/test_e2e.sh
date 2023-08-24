@@ -7,12 +7,11 @@ PID=$!
 
 # run test
 yarn newman run \
-  -e test/local.postman_environment.json \
-  -d test/variables.json \
-  "test/functionality test.postman_collection.json"
+  --environment postman/test.postman_environment.json \
+  "postman/functionality test.postman_collection.json"
 TEST_RET=$?
 
 # exit server
-kill -9 $PID
+kill -TERM $PID
 
 exit $TEST_RET

@@ -1,6 +1,6 @@
 {
   "info": {
-    "_postman_id": "3f889971-31dd-41dd-917c-765f418f0a07",
+    "_postman_id": "c0a49f23-f5f3-484c-8726-1412d70d5fd9",
     "name": "functionality test",
     "description": "test basic functionality by scenario\n\n### scenario\n\n1. sign up a user\n2. sign in as that user\n3. get the uesr's tasks\n4. register a new task\n5. start the task\n6. update the task's memo\n7. finish the task",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
@@ -23,20 +23,6 @@
               "    \"User Created\"",
               "  );",
               "});",
-              ""
-            ],
-            "type": "text/javascript"
-          }
-        },
-        {
-          "listen": "prerequest",
-          "script": {
-            "exec": [
-              "var userId = pm.iterationData.get(\"userId\");",
-              "pm.variables.set(\"userId\", userId);",
-              "",
-              "var password = pm.iterationData.get(\"password\");",
-              "pm.variables.set(\"password\", password);",
               ""
             ],
             "type": "text/javascript"
@@ -222,20 +208,6 @@
       "name": "Register task",
       "event": [
         {
-          "listen": "prerequest",
-          "script": {
-            "exec": [
-              "var content = pm.iterationData.get(\"content\");",
-              "pm.variables.set(\"content\", content);",
-              "",
-              "var deadline = pm.iterationData.get(\"deadline\");",
-              "pm.variables.set(\"deadline\", deadline);",
-              ""
-            ],
-            "type": "text/javascript"
-          }
-        },
-        {
           "listen": "test",
           "script": {
             "exec": [
@@ -393,17 +365,6 @@
     {
       "name": "Update memo",
       "event": [
-        {
-          "listen": "prerequest",
-          "script": {
-            "exec": [
-              "var memo = pm.iterationData.get(\"memo\");",
-              "pm.variables.set(\"memo\", memo);",
-              ""
-            ],
-            "type": "text/javascript"
-          }
-        },
         {
           "listen": "test",
           "script": {
