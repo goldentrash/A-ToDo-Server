@@ -1,120 +1,65 @@
-import {
-  type PoolConnection,
-  type ResultSetHeader,
-  type RowDataPacket,
-  type QueryError,
-} from "mysql2/promise";
+import { type QueryError } from "mysql2/promise";
 import createError from "http-errors";
+import { type Knex } from "knex";
 import { type TaskDAO, type TaskDTO, type SearchOption } from "service";
 
-type TaskEntity = {
-  id: string;
-  user_id: string;
-  progress: "todo" | "doing" | "done";
-  content: string;
-  memo: string;
-  deadline: string;
-  registerd_at: string;
-  started_at: string | null;
-  finished_at: string | null;
-};
-
 export const taskRepo: TaskDAO = {
-  find(conn: PoolConnection, id: TaskDTO["id"]) {
-    const sql = `
-      SELECT
-        id,
-        progress,
-        user_id,
-        content,
-        memo,
-        deadline,
-        registerd_at,
-        started_at,
-        finished_at
-      FROM
-        task
-      WHERE
-        id = ?;
-      `;
+  find(knex: Knex, id: TaskDTO["id"]) {
+    const query = knex("task").where("id", id).first();
 
     return new Promise<TaskDTO>((resolve, reject) => {
-      conn.execute<RowDataPacket[]>(sql, [id]).then(([[taskEntity]]) => {
-        if (!taskEntity) return reject(createError(400, "Task Absent"));
+      query.then((task) => {
+        if (!task) return reject(createError(400, "Task Absent"));
 
-        const { id, user_id, progress, content, memo, deadline }: TaskDTO =
-          taskEntity as TaskEntity;
-        return resolve({ id, user_id, progress, content, memo, deadline });
+        return resolve({
+          id: task.id,
+          user_id: task.user_id,
+          progress: task.progress,
+          content: task.content,
+          memo: task.memo,
+          deadline: task.deadline,
+        });
       });
     });
   },
   findByUser(
-    conn: PoolConnection,
+    knex: Knex,
     user_id: TaskDTO["user_id"],
     { sort, filter: { progress } }: SearchOption
   ) {
-    const sql = `
-      SELECT
-        id,
-        progress,
-        user_id,
-        content,
-        memo,
-        deadline,
-        registerd_at,
-        started_at,
-        finished_at
-      FROM
-        task
-      WHERE
-        user_id = ?
-        ${
-          progress
-            ? `AND progress IN (${"?"
-                .repeat(progress.length)
-                .split("")
-                .join(", ")})`
-            : ``
-        }
-      ORDER BY 
-        ${sort ? conn.escapeId(sort) : "NULL"};
-      `;
+    const query = knex("task").where("user_id", user_id);
+    if (progress) query.whereIn("progress", progress);
+    if (sort) query.orderBy(sort);
 
     return new Promise<TaskDTO[]>((resolve, _reject) => {
-      conn
-        .execute<RowDataPacket[]>(sql, [user_id, ...(progress ?? [])])
-        .then(([taskEntityArr]) => {
-          const taskDTOs: TaskDTO[] = taskEntityArr.map((taskEntity) => {
-            const { id, user_id, progress, content, memo, deadline }: TaskDTO =
-              taskEntity as TaskEntity;
-
-            return { id, user_id, progress, content, memo, deadline };
-          });
-
-          return resolve(taskDTOs);
-        });
+      query.then((taskArr) => {
+        return resolve(
+          taskArr.map((task) => ({
+            id: task.id,
+            user_id: task.user_id,
+            progress: task.progress,
+            content: task.content,
+            memo: task.memo,
+            deadline: task.deadline,
+          }))
+        );
+      });
     });
   },
   register(
-    conn: PoolConnection,
+    knex: Knex,
     {
       user_id,
       content,
       deadline,
     }: Pick<TaskDTO, "user_id" | "content" | "deadline">
   ) {
-    const sql = `
-      INSERT INTO
-        task (user_id, content, deadline)
-      VALUES
-        (?, ?, ?);
-      `;
+    const query = knex("task").insert({ user_id, content, deadline });
 
     return new Promise<TaskDTO["id"]>((resolve, reject) => {
-      conn
-        .execute<ResultSetHeader>(sql, [user_id, content, deadline])
-        .then(([{ insertId }]) => {
-          return resolve(insertId.toString());
+      query
+        .then(([id]) => {
+          return resolve(id);
         })
         .catch((err: QueryError) => {
           if (err.code === "ER_TRUNCATED_WRONG_VALUE")
@@ -127,75 +72,49 @@ export const taskRepo: TaskDAO = {
         });
     });
   },
-  start(conn: PoolConnection, { id }: TaskDTO) {
-    const sql = `
-      UPDATE task
-      SET
-        progress = "doing",
-        started_at = CURRENT_TIMESTAMP
-      WHERE
-        id = ?;
-      `;
+  start(knex: Knex, { id }: TaskDTO) {
+    const query = knex("task")
+      .where("id", id)
+      .update("progress", "doing")
+      .update("started_at", knex.fn.now());
 
     return new Promise<void>((resolve, reject) => {
-      conn
-        .execute<ResultSetHeader>(sql, [id])
+      query
         .then(() => resolve())
         .catch((err: QueryError) => {
           if (err.code === "ER_DUP_ENTRY")
             return reject(createError(400, "User Busy"));
 
-          if (err.code === "ER_TRUNCATED_WRONG_VALUE")
-            return reject(createError(400, "Task ID Invalid"));
-
           return reject(err);
         });
     });
   },
-  finish(conn: PoolConnection, { id }: TaskDTO) {
-    const sql = `
-      UPDATE task
-      SET
-        progress = "done",
-        finished_at = CURRENT_TIMESTAMP
-      WHERE
-        id = ?;
-      `;
+  finish(knex: Knex, { id }: TaskDTO) {
+    const query = knex("task")
+      .where("id", id)
+      .update("progress", "done")
+      .update("finished_at", knex.fn.now());
 
     return new Promise<void>((resolve, reject) => {
-      conn
-        .execute<ResultSetHeader>(sql, [id])
+      query
         .then(() => resolve())
         .catch((err: QueryError) => {
           if (err.code === "ER_CHECK_CONSTRAINT_VIOLATED")
             return reject(createError(400, "Task Unstarted"));
 
-          if (err.code === "ER_TRUNCATED_WRONG_VALUE")
-            return reject(createError(400, "Task ID Invalid"));
-
           return reject(err);
         });
     });
   },
-  setMemo(conn: PoolConnection, { id, memo }: TaskDTO) {
-    const sql = `
-      UPDATE task
-      SET
-        memo = ?
-      WHERE
-        id = ?;
-      `;
+  setMemo(knex: Knex, { id, memo }: TaskDTO) {
+    const query = knex("task").where("id", id).update("memo", memo);
 
     return new Promise<void>((resolve, reject) => {
-      conn
-        .execute<ResultSetHeader>(sql, [memo, id])
+      query
         .then(() => resolve())
         .catch((err: QueryError) => {
           if (err.code === "ER_DATA_TOO_LONG")
             return reject(createError(400, "Property Too Long"));
-
-          if (err.code === "ER_TRUNCATED_WRONG_VALUE")
-            return reject(createError(400, "Task ID Invalid"));
 
           return reject(err);
         });

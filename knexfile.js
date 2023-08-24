@@ -1,6 +1,8 @@
-import Knex from "knex";
-
-export const knex = Knex({
+require("dotenv").config();
+/**
+ * @type { Object.<string, import("knex").Knex.Config> }
+ */
+module.exports = {
   client: "mysql2",
   connection: {
     host: process.env.DB_HOST ?? "127.0.0.1",
@@ -10,10 +12,5 @@ export const knex = Knex({
       ? process.env.DB_PASSWORD
       : process.env.DB_ROOT_PASSWORD,
     database: "a_todo",
-    dateStrings: true,
   },
-  pool: { min: 0, max: 7 },
-});
-
-export { userRepo } from "./user";
-export { taskRepo } from "./task";
+};
