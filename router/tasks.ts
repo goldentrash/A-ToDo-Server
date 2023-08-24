@@ -32,10 +32,12 @@ export const genTasksRouter = (
 
         const { task_id } = req.params;
         const { memo } = req.body;
+        if (isNaN(parseInt(task_id)))
+          return next(createError(400, "Task ID Invalid"));
         if (!memo) return next(createError(400, "Property Absent"));
 
         const updatedTask = await taskService.updateMemo(
-          task_id,
+          parseInt(task_id),
           user_id,
           memo
         );
@@ -61,18 +63,26 @@ export const genTasksRouter = (
 
         const { task_id } = req.params;
         const { action }: { action?: "start" | "finish" } = req.body;
+        if (isNaN(parseInt(task_id)))
+          return next(createError(400, "Task ID Invalid"));
         if (!action) return next(createError(400, "Property Absent"));
 
         switch (action) {
           case "start": {
-            const startedTask = await taskService.startTask(task_id, user_id);
+            const startedTask = await taskService.startTask(
+              parseInt(task_id),
+              user_id
+            );
             return res.status(200).json({
               message: "Task Started",
               data: { task: startedTask },
             });
           }
           case "finish": {
-            const finishedTask = await taskService.finishTask(task_id, user_id);
+            const finishedTask = await taskService.finishTask(
+              parseInt(task_id),
+              user_id
+            );
             return res.status(200).json({
               message: "Task Finished",
               data: { task: finishedTask },

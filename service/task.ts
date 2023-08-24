@@ -1,103 +1,80 @@
 import createError from "http-errors";
-import { pool } from "repository";
+import { knex } from "repository";
 import { type TaskDAO, type SearchOption } from "./type";
 
 export type TaskService = ReturnType<typeof genTaskService>;
 
 export const genTaskService = (taskRepo: TaskDAO) => ({
   async getTasksByUser(user_id: string, searchOption: SearchOption) {
-    const conn = await pool.getConnection();
-
-    try {
-      const taskDTOs = await taskRepo.findByUser(conn, user_id, searchOption);
-      return taskDTOs;
-    } finally {
-      conn.release();
-    }
+    return await taskRepo.findByUser(knex, user_id, searchOption);
   },
   async register(user_id: string, content: string, deadline: string) {
-    const conn = await pool.getConnection();
+    const trx = await knex.transaction();
 
     try {
-      await conn.beginTransaction();
-
-      const insertId = await taskRepo.register(conn, {
+      const insertId = await taskRepo.register(trx, {
         user_id,
         content,
         deadline,
       });
-      const taskDTO = await taskRepo.find(conn, insertId);
+      const taskDTO = await taskRepo.find(trx, insertId);
 
-      conn.commit();
+      trx.commit();
       return taskDTO;
     } catch (err) {
-      conn.rollback();
+      trx.rollback();
       throw err;
-    } finally {
-      conn.release();
     }
   },
-  async startTask(id: string, user_id: string) {
-    const conn = await pool.getConnection();
+  async startTask(id: number, user_id: string) {
+    const trx = await knex.transaction();
 
     try {
-      await conn.beginTransaction();
-
-      const taskDTO = await taskRepo.find(conn, id);
+      const taskDTO = await taskRepo.find(trx, id);
       if (taskDTO.user_id !== user_id) throw createError(403, "Forbidden");
 
       taskDTO.progress = "doing";
-      await taskRepo.start(conn, taskDTO);
+      await taskRepo.start(trx, taskDTO);
 
-      conn.commit();
+      trx.commit();
       return taskDTO;
     } catch (err) {
-      conn.rollback();
+      trx.rollback();
       throw err;
-    } finally {
-      conn.release();
     }
   },
-  async finishTask(id: string, user_id: string) {
-    const conn = await pool.getConnection();
+  async finishTask(id: number, user_id: string) {
+    const trx = await knex.transaction();
 
     try {
-      await conn.beginTransaction();
-
-      const taskDTO = await taskRepo.find(conn, id);
+      const taskDTO = await taskRepo.find(trx, id);
       if (taskDTO.user_id !== user_id) throw createError(403, "Forbidden");
 
       taskDTO.progress = "done";
-      await taskRepo.finish(conn, taskDTO);
+      await taskRepo.finish(trx, taskDTO);
 
-      conn.commit();
+      trx.commit();
       return taskDTO;
     } catch (err) {
-      conn.rollback();
+      trx.rollback();
       throw err;
-    } finally {
-      conn.release();
     }
   },
-  async updateMemo(id: string, user_id: string, memo: string) {
-    const conn = await pool.getConnection();
+  async updateMemo(id: number, user_id: string, memo: string) {
+    const trx = await knex.transaction();
 
     try {
-      await conn.beginTransaction();
-
-      const taskDTO = await taskRepo.find(conn, id);
+      const taskDTO = await taskRepo.find(trx, id);
       if (taskDTO.user_id !== user_id) throw createError(403, "Forbidden");
 
       taskDTO.memo = memo;
-      await taskRepo.setMemo(conn, taskDTO);
+      await taskRepo.setMemo(trx, taskDTO);
 
-      conn.commit();
+      trx.commit();
       return taskDTO;
     } catch (err) {
-      conn.rollback();
+      trx.rollback();
       throw err;
-    } finally {
-      conn.release();
     }
   },
 });

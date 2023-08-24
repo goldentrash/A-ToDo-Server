@@ -22,7 +22,7 @@ exports.up = async (knex) =>
       .unique();
     table.string("content", 100).notNullable();
     table.string("memo", 200).notNullable().defaultTo("");
-    table.datetime("deadline").notNullable(); // must match DB timezon
+    table.date("deadline").notNullable(); // must match DB timezon
     table.timestamp("registerd_at").notNullable().defaultTo(knex.fn.now());
     table.timestamp("started_at");
     table.timestamp("finished_at");
