@@ -5,12 +5,7 @@ import {
   genContentNegotiator,
   genMethodNotAllowedHandler,
 } from "router/helper";
-import {
-  type TaskDTO,
-  type TaskService,
-  type UserService,
-  type SearchOption,
-} from "service";
+import { type TaskService, type UserService, type SearchOption } from "service";
 
 export const genTasksRouter = (
   taskService: TaskService,
@@ -115,39 +110,10 @@ export const genTasksRouter = (
         if (Array.isArray(progress))
           option.filter.progress = progress as string[];
 
-        const taskArr = await taskService.getTasksByUser(user_id, option);
-        const [todoList, doing, doneList] = taskArr.reduce<
-          [TaskDTO[], TaskDTO | null, TaskDTO[]]
-        >(
-          ([todoList, doing, doneList], curr) => {
-            const { progress } = curr;
-            switch (progress) {
-              case "todo":
-                todoList.push(curr);
-                break;
-              case "doing":
-                doing = curr;
-                break;
-              case "done":
-                doneList.push(curr);
-                break;
-              default:
-                ((_progress: never) => {
-                  throw Error("unreachable case");
-                })(progress);
-            }
-
-            return [todoList, doing, doneList];
-          },
-          [[], null, []]
-        );
+        const taskList = await taskService.getTasksByUser(user_id, option);
         return res.status(200).json({
           message: "Query Accepted",
-          data: {
-            todoList,
-            doing,
-            doneList,
-          },
+          data: { taskList },
         });
       })
     )
