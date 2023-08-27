@@ -26,7 +26,7 @@ jobs:
           echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
           echo "" >> .env
       - run: sudo service mysql start
-      - run: mysql --user=root --password=root --execute="CREATE DATABASE a_todo;"
+      - run: mysql --user=root --password=root --execute="CREATE DATABASE a_todo CHARACTER SET utf8;"
       - run: yarn db:migrate
       - run: yarn test
 
