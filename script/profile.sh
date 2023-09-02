@@ -13,7 +13,7 @@ fi
 # set DB
 echo
 echo seed DB:
-yarn knex seed:run --specific=e2e_test.js
+yarn knex seed:run --specific=test.js
 
 # build server
 echo
