@@ -18,6 +18,9 @@ export const taskRepo: TaskDAO = {
           content: task.content,
           memo: task.memo,
           deadline: task.deadline,
+          registerd_at: task.registerd_at,
+          started_at: task.started_at,
+          finished_at: task.finished_at,
         });
       });
     });
@@ -41,6 +44,9 @@ export const taskRepo: TaskDAO = {
             content: task.content,
             memo: task.memo,
             deadline: task.deadline,
+            registerd_at: task.registerd_at,
+            started_at: task.started_at,
+            finished_at: task.finished_at,
           }))
         );
       });

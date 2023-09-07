@@ -18,6 +18,9 @@ export type TaskDTO = {
   content: string;
   memo: string;
   deadline: string;
+  registerd_at: string;
+  started_at: string | null;
+  finished_at: string | null;
 };
 
 export type SearchOption = {
