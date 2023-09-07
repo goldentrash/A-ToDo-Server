@@ -1,13 +1,13 @@
 import { Knex } from "knex";
 
-type UserEntity = {
+export type UserEntity = {
   id: string;
   hashed_password: string;
   registerd_at: string;
   last_accessed_at: string;
 };
 
-type TaskEntity = {
+export type TaskEntity = {
   id: number;
   user_id: UserEntity["id"];
   progress: "todo" | "doing" | "done";
