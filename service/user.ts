@@ -9,7 +9,7 @@ export const genUserService = (userRepo: UserDAO) => ({
   async signIn(id: string, password: string) {
     await userRepo.updateAccessTime(knex, id);
 
-    const userDTO = await userRepo.find(knex, id);
+    const userDTO = await userRepo.findById(knex, id);
     const user = new UserDomain(userDTO);
 
     await user.verifyPassword(password);
@@ -17,7 +17,7 @@ export const genUserService = (userRepo: UserDAO) => ({
   },
   async signUp(id: string, password: string) {
     const hashed_password = await UserDomain.hashPassword(password);
-    return await userRepo.register(knex, { id, hashed_password });
+    return await userRepo.insert(knex, { id, hashed_password });
   },
   async updateAccessTime(id: string) {
     return userRepo.updateAccessTime(knex, id);

@@ -6,9 +6,9 @@ export type UserDTO = {
 };
 
 export type UserDAO = {
-  find(knex: Knex, id: UserDTO["id"]): Promise<UserDTO>;
+  findById(knex: Knex, id: UserDTO["id"]): Promise<UserDTO>;
   updateAccessTime(knex: Knex, id: UserDTO["id"]): Promise<void>;
-  register(knex: Knex, user: UserDTO): Promise<void>;
+  insert(knex: Knex, user: UserDTO): Promise<void>;
 };
 
 export type TaskDTO = {
@@ -29,13 +29,13 @@ export type SearchOption = {
 };
 
 export type TaskDAO = {
-  find(kne: Knex, id: TaskDTO["id"]): Promise<TaskDTO>;
+  findById(kne: Knex, id: TaskDTO["id"]): Promise<TaskDTO>;
   findByUser(
     kne: Knex,
     user_id: TaskDTO["user_id"],
     searchOption: SearchOption
   ): Promise<TaskDTO[]>;
-  register(
+  insert(
     kne: Knex,
     {
       user_id,
@@ -43,7 +43,6 @@ export type TaskDAO = {
       deadline,
     }: Pick<TaskDTO, "user_id" | "content" | "deadline">
   ): Promise<TaskDTO["id"]>;
-  start(kne: Knex, taskDTO: TaskDTO): Promise<void>;
-  finish(kne: Knex, taskDTO: TaskDTO): Promise<void>;
+  updateProgress(kne: Knex, taskDTO: TaskDTO): Promise<void>;
   setMemo(kne: Knex, taskDTO: TaskDTO): Promise<void>;
 };
