@@ -4,7 +4,7 @@ import { type Knex } from "knex";
 import { type TaskDAO, type TaskDTO, type SearchOption } from "service";
 
 export const taskRepo: TaskDAO = {
-  find(knex: Knex, id: TaskDTO["id"]) {
+  findById(knex: Knex, id: TaskDTO["id"]) {
     const query = knex("task").where("id", id).first();
 
     return new Promise<TaskDTO>((resolve, reject) => {
@@ -18,6 +18,9 @@ export const taskRepo: TaskDAO = {
           content: task.content,
           memo: task.memo,
           deadline: task.deadline,
+          registerd_at: task.registerd_at,
+          started_at: task.started_at,
+          finished_at: task.finished_at,
         });
       });
     });
@@ -41,12 +44,15 @@ export const taskRepo: TaskDAO = {
             content: task.content,
             memo: task.memo,
             deadline: task.deadline,
+            registerd_at: task.registerd_at,
+            started_at: task.started_at,
+            finished_at: task.finished_at,
           }))
         );
       });
     });
   },
-  register(
+  insert(
     knex: Knex,
     {
       user_id,
@@ -72,39 +78,53 @@ export const taskRepo: TaskDAO = {
         });
     });
   },
-  start(knex: Knex, { id }: TaskDTO) {
-    const query = knex("task")
-      .where("id", id)
-      .update("progress", "doing")
-      .update("started_at", knex.fn.now());
+  updateProgress(knex: Knex, { id, progress }: TaskDTO) {
+    switch (progress) {
+      case "todo":
+        throw Error("unreachable case");
+      case "doing":
+        {
+          const query = knex("task")
+            .where("id", id)
+            .update("progress", "doing")
+            .update("started_at", knex.fn.now());
 
-    return new Promise<void>((resolve, reject) => {
-      query
-        .then(() => resolve())
-        .catch((err: QueryError) => {
-          if (err.code === "ER_DUP_ENTRY")
-            return reject(createError(400, "User Busy"));
+          return new Promise<void>((resolve, reject) => {
+            query
+              .then(() => resolve())
+              .catch((err: QueryError) => {
+                if (err.code === "ER_DUP_ENTRY")
+                  return reject(createError(400, "User Busy"));
 
-          return reject(err);
-        });
-    });
-  },
-  finish(knex: Knex, { id }: TaskDTO) {
-    const query = knex("task")
-      .where("id", id)
-      .update("progress", "done")
-      .update("finished_at", knex.fn.now());
+                return reject(err);
+              });
+          });
+        }
+        break;
+      case "done":
+        {
+          const query = knex("task")
+            .where("id", id)
+            .update("progress", "done")
+            .update("finished_at", knex.fn.now());
 
-    return new Promise<void>((resolve, reject) => {
-      query
-        .then(() => resolve())
-        .catch((err: QueryError) => {
-          if (err.code === "ER_CHECK_CONSTRAINT_VIOLATED")
-            return reject(createError(400, "Task Unstarted"));
+          return new Promise<void>((resolve, reject) => {
+            query
+              .then(() => resolve())
+              .catch((err: QueryError) => {
+                if (err.code === "ER_CHECK_CONSTRAINT_VIOLATED")
+                  return reject(createError(400, "Task Unstarted"));
 
-          return reject(err);
-        });
-    });
+                return reject(err);
+              });
+          });
+        }
+        break;
+      default:
+        return ((_progress: never) => {
+          throw Error("unreachable case");
+        })(progress);
+    }
   },
   setMemo(knex: Knex, { id, memo }: TaskDTO) {
     const query = knex("task").where("id", id).update("memo", memo);

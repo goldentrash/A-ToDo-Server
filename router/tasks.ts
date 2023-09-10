@@ -4,7 +4,7 @@ import {
   asyncHandlerWrapper,
   genContentNegotiator,
   genMethodNotAllowedHandler,
-} from "router/helper";
+} from "./helper";
 import { type TaskService, type UserService, type SearchOption } from "service";
 
 export const genTasksRouter = (
@@ -64,7 +64,7 @@ export const genTasksRouter = (
 
         switch (action) {
           case "start": {
-            const startedTask = await taskService.startTask(
+            const startedTask = await taskService.start(
               parseInt(task_id),
               user_id
             );
@@ -74,7 +74,7 @@ export const genTasksRouter = (
             });
           }
           case "finish": {
-            const finishedTask = await taskService.finishTask(
+            const finishedTask = await taskService.finish(
               parseInt(task_id),
               user_id
             );
@@ -110,7 +110,7 @@ export const genTasksRouter = (
         if (Array.isArray(progress))
           option.filter.progress = progress as string[];
 
-        const taskList = await taskService.getTasksByUser(user_id, option);
+        const taskList = await taskService.search(user_id, option);
         return res.status(200).json({
           message: "Query Accepted",
           data: { taskList },

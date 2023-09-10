@@ -4,7 +4,7 @@ import { type Knex } from "knex";
 import { type UserDAO, type UserDTO } from "service";
 
 export const userRepo: UserDAO = {
-  find(knex: Knex, id: UserDTO["id"]) {
+  findById(knex: Knex, id: UserDTO["id"]) {
     const query = knex("user").where("id", id).first();
 
     return new Promise<UserDTO>((resolve, reject) => {
@@ -27,7 +27,7 @@ export const userRepo: UserDAO = {
       query.then(() => resolve());
     });
   },
-  register(knex: Knex, { id, hashed_password }: UserDTO) {
+  insert(knex: Knex, { id, hashed_password }: UserDTO) {
     const query = knex("user").insert({ id, hashed_password });
 
     return new Promise<void>((resolve, reject) => {
