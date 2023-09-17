@@ -30,11 +30,12 @@ export const genTaskService = (taskRepo: TaskDAO) => ({
     const trx = await knex.transaction();
 
     try {
-      const taskDTO = await taskRepo.findById(trx, id);
+      let taskDTO = await taskRepo.findById(trx, id);
       if (taskDTO.user_id !== user_id) throw createError(403, "Forbidden");
 
       taskDTO.progress = "doing";
       await taskRepo.updateProgress(trx, taskDTO);
+      taskDTO = await taskRepo.findById(trx, id);
 
       trx.commit();
       return taskDTO;
@@ -47,11 +48,12 @@ export const genTaskService = (taskRepo: TaskDAO) => ({
     const trx = await knex.transaction();
 
     try {
-      const taskDTO = await taskRepo.findById(trx, id);
+      let taskDTO = await taskRepo.findById(trx, id);
       if (taskDTO.user_id !== user_id) throw createError(403, "Forbidden");
 
       taskDTO.progress = "done";
       await taskRepo.updateProgress(trx, taskDTO);
+      taskDTO = await taskRepo.findById(trx, id);
 
       trx.commit();
       return taskDTO;
