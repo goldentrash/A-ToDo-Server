@@ -7,6 +7,10 @@ type TokenPayload = {
   user_id: UserDTO["id"];
 };
 
+if (typeof process.env.JWT_SECRET !== "string")
+  throw Error("there's no JWT_SECRET");
+const JWT_SECRET = process.env.JWT_SECRET;
+
 export class UserDomain {
   private id: string;
   private hashed_password: string;
@@ -18,13 +22,7 @@ export class UserDomain {
 
   genToken() {
     const payload: TokenPayload = { user_id: this.id };
-
-    return jwt.sign(
-      payload,
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      process.env.JWT_SECRET!,
-      { expiresIn: "1 days" }
-    );
+    return jwt.sign(payload, JWT_SECRET, { expiresIn: "1 days" }); // 1h로 바꾸자 ㅋㅋㅋㅋㅋㅋㅋㅋ 이래서였구나
   }
 
   async verifyPassword(password: string) {
@@ -38,11 +36,7 @@ export class UserDomain {
 
   static verifyToken(token: string) {
     try {
-      return jwt.verify(
-        token,
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        process.env.JWT_SECRET!
-      ) as TokenPayload;
+      return jwt.verify(token, JWT_SECRET) as TokenPayload;
     } catch {
       throw createError(400, "Token Invalid");
     }
