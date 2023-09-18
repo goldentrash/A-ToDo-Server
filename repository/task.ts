@@ -16,7 +16,6 @@ export const taskRepo: TaskDAO = {
           user_id: task.user_id,
           progress: task.progress,
           content: task.content,
-          memo: task.memo,
           deadline: task.deadline,
           registerd_at: task.registerd_at,
           started_at: task.started_at,
@@ -42,7 +41,6 @@ export const taskRepo: TaskDAO = {
             user_id: task.user_id,
             progress: task.progress,
             content: task.content,
-            memo: task.memo,
             deadline: task.deadline,
             registerd_at: task.registerd_at,
             started_at: task.started_at,
@@ -126,8 +124,8 @@ export const taskRepo: TaskDAO = {
         })(progress);
     }
   },
-  setMemo(knex: Knex, { id, memo }: TaskDTO) {
-    const query = knex("task").where("id", id).update("memo", memo);
+  updateContent(knex: Knex, { id, content }: TaskDTO) {
+    const query = knex("task").where("id", id).update("content", content);
 
     return new Promise<void>((resolve, reject) => {
       query

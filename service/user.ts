@@ -1,12 +1,12 @@
 import createError from "http-errors";
 import { knex } from "repository";
 import { UserDomain } from "domain/user";
-import { type UserDAO } from "./type";
+import { type UserDTO, type UserDAO } from "./type";
 
 export type UserService = ReturnType<typeof genUserService>;
 
 export const genUserService = (userRepo: UserDAO) => ({
-  async signIn(id: string, password: string) {
+  async signIn(id: UserDTO["id"], password: string) {
     await userRepo.updateAccessTime(knex, id);
 
     const userDTO = await userRepo.findById(knex, id);
@@ -15,11 +15,11 @@ export const genUserService = (userRepo: UserDAO) => ({
     await user.verifyPassword(password);
     return user.genToken();
   },
-  async signUp(id: string, password: string) {
+  async signUp(id: UserDTO["id"], password: string) {
     const hashed_password = await UserDomain.hashPassword(password);
     return await userRepo.insert(knex, { id, hashed_password });
   },
-  async updateAccessTime(id: string) {
+  async updateAccessTime(id: UserDTO["id"]) {
     return userRepo.updateAccessTime(knex, id);
   },
   verify(authorization: string) {

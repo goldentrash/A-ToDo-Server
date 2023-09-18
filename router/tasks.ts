@@ -14,8 +14,8 @@ export const genTasksRouter = (
   const tasksRouter = express.Router();
 
   tasksRouter
-    .route("/:task_id/memo")
-    // update memo
+    .route("/:task_id/content")
+    // update content
     .put(
       genContentNegotiator(["json"]),
       asyncHandlerWrapper(async (req, res, next) => {
@@ -26,16 +26,16 @@ export const genTasksRouter = (
         await userService.updateAccessTime(user_id);
 
         const { task_id } = req.params;
-        const { memo } = req.body;
+        const { content } = req.body;
         if (isNaN(parseInt(task_id)))
           return next(createError(400, "Task ID Invalid"));
-        if (!memo) return next(createError(400, "Property Absent"));
+        if (!content) return next(createError(400, "Property Absent"));
 
-        const updatedTask = await taskService.updateMemo(
-          parseInt(task_id),
+        const updatedTask = await taskService.updateContent({
+          id: parseInt(task_id),
           user_id,
-          memo
-        );
+          content,
+        });
         return res.status(200).json({
           message: "Memo Updated",
           data: { task: updatedTask },
@@ -64,20 +64,20 @@ export const genTasksRouter = (
 
         switch (action) {
           case "start": {
-            const startedTask = await taskService.start(
-              parseInt(task_id),
-              user_id
-            );
+            const startedTask = await taskService.start({
+              id: parseInt(task_id),
+              user_id,
+            });
             return res.status(200).json({
               message: "Task Started",
               data: { task: startedTask },
             });
           }
           case "finish": {
-            const finishedTask = await taskService.finish(
-              parseInt(task_id),
-              user_id
-            );
+            const finishedTask = await taskService.finish({
+              id: parseInt(task_id),
+              user_id,
+            });
             return res.status(200).json({
               message: "Task Finished",
               data: { task: finishedTask },
@@ -133,11 +133,11 @@ export const genTasksRouter = (
         if (typeof content !== "string" || typeof deadline !== "string")
           return next(createError(400, "Property Invalid"));
 
-        const registeredTask = await taskService.register(
+        const registeredTask = await taskService.register({
           user_id,
           content,
-          deadline
-        );
+          deadline,
+        });
         return res.status(201).json({
           message: "Task Created",
           data: { task: registeredTask },
