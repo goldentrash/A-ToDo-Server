@@ -1,6 +1,6 @@
 import createError from "http-errors";
 import { knex } from "repository";
-import { UserDomain } from "domain/user";
+import UserDomain from "domain/user";
 import { type UserDTO, type UserDAO } from "./type";
 
 export type UserService = ReturnType<typeof genUserService>;

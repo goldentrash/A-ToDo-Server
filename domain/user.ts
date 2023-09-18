@@ -11,7 +11,7 @@ if (typeof process.env.JWT_SECRET !== "string")
   throw Error("there's no JWT_SECRET");
 const JWT_SECRET = process.env.JWT_SECRET;
 
-export class UserDomain {
+export default class UserDomain {
   private id: string;
   private hashed_password: string;
 
@@ -20,25 +20,25 @@ export class UserDomain {
     this.hashed_password = userDTO.hashed_password;
   }
 
-  genToken() {
+  genToken(): string {
     const payload: TokenPayload = { user_id: this.id };
-    return jwt.sign(payload, JWT_SECRET, { expiresIn: "1 days" }); // 1h로 바꾸자 ㅋㅋㅋㅋㅋㅋㅋㅋ 이래서였구나
+    return jwt.sign(payload, JWT_SECRET, { expiresIn: "1 days" });
   }
 
-  async verifyPassword(password: string) {
-    const ret = await bcrypt.compare(password, this.hashed_password);
-    if (!ret) throw createError(400, "Password Invalid");
-  }
-
-  static async hashPassword(password: string) {
-    return await bcrypt.hash(password, 5);
-  }
-
-  static verifyToken(token: string) {
+  static verifyToken(token: string): TokenPayload {
     try {
       return jwt.verify(token, JWT_SECRET) as TokenPayload;
     } catch {
       throw createError(400, "Token Invalid");
     }
+  }
+
+  static async hashPassword(password: string): Promise<string> {
+    return await bcrypt.hash(password, 5);
+  }
+
+  async verifyPassword(password: string): Promise<void> {
+    const ret = await bcrypt.compare(password, this.hashed_password);
+    if (!ret) throw createError(400, "Password Invalid");
   }
 }
