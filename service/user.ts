@@ -15,6 +15,7 @@ export const genUserService = (userRepo: UserDAO) => ({
     await user.verifyPassword(password);
     return user.genToken();
   },
+
   async signUp(id: UserDTO["id"], password: string) {
     const hashed_password = await UserDomain.hashPassword(password);
     return await userRepo.insert(knex, { id, hashed_password });
@@ -22,6 +23,7 @@ export const genUserService = (userRepo: UserDAO) => ({
   async updateAccessTime(id: UserDTO["id"]) {
     return userRepo.updateAccessTime(knex, id);
   },
+
   verify(authorization: string) {
     const [type, token] = authorization.split(" ");
     if (type !== "Bearer") throw createError(401, "Token Not Supported");

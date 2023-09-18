@@ -24,6 +24,7 @@ export const taskRepo: TaskDAO = {
       });
     });
   },
+
   findByUser(
     knex: Knex,
     user_id: TaskDTO["user_id"],
@@ -50,6 +51,7 @@ export const taskRepo: TaskDAO = {
       });
     });
   },
+
   insert(
     knex: Knex,
     {
@@ -76,6 +78,7 @@ export const taskRepo: TaskDAO = {
         });
     });
   },
+
   updateProgress(knex: Knex, { id, progress }: TaskDTO) {
     switch (progress) {
       case "todo":
@@ -124,6 +127,7 @@ export const taskRepo: TaskDAO = {
         })(progress);
     }
   },
+
   updateContent(knex: Knex, { id, content }: TaskDTO) {
     const query = knex("task").where("id", id).update("content", content);
 

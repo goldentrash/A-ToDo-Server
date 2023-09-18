@@ -5,7 +5,12 @@ import {
   genContentNegotiator,
   genMethodNotAllowedHandler,
 } from "./helper";
-import { type TaskService, type UserService, type SearchOption } from "service";
+import {
+  type TaskService,
+  type UserService,
+  type SearchOption,
+  TaskDTO,
+} from "service";
 
 export const genTasksRouter = (
   taskService: TaskService,
@@ -15,6 +20,7 @@ export const genTasksRouter = (
 
   tasksRouter
     .route("/:task_id/content")
+
     // update content
     .put(
       genContentNegotiator(["json"]),
@@ -57,10 +63,12 @@ export const genTasksRouter = (
         });
       })
     )
+
     .all(genMethodNotAllowedHandler(["PUT"]));
 
   tasksRouter
     .route("/:task_id")
+
     // progress task
     .patch(
       genContentNegotiator(["json"]),
@@ -79,63 +87,52 @@ export const genTasksRouter = (
         if (!action) return next(createError(400, "Property Absent"));
 
         // Process
+        let message: string;
+        let progressedTask: TaskDTO;
         switch (action) {
-          case "start": {
-            const startedTask = await taskService.start({
+          case "start":
+            message = "Task Started";
+            progressedTask = await taskService.start({
               id: parseInt(task_id),
               user_id,
             });
-
-            // Response
-            const response = {
-              task: {
-                id: startedTask.id,
-                progress: startedTask.progress,
-                content: startedTask.content,
-                deadline: startedTask.deadline,
-                registerd_at: startedTask.registerd_at,
-                started_at: startedTask.started_at,
-                finished_at: startedTask.finished_at,
-              },
-            };
-            return res.status(200).json({
-              message: "Task Started",
-              data: response,
-            });
-          }
-          case "finish": {
-            const finishedTask = await taskService.finish({
+            break;
+          case "finish":
+            message = "Task Finished";
+            progressedTask = await taskService.finish({
               id: parseInt(task_id),
               user_id,
             });
-
-            // Response
-            const response = {
-              task: {
-                id: finishedTask.id,
-                progress: finishedTask.progress,
-                content: finishedTask.content,
-                deadline: finishedTask.deadline,
-                registerd_at: finishedTask.registerd_at,
-                started_at: finishedTask.started_at,
-                finished_at: finishedTask.finished_at,
-              },
-            };
-            return res.status(200).json({
-              message: "Task Finished",
-              data: response,
-            });
-          }
+            break;
           default:
             return ((_action: never) =>
               next(createError(400, "Property Invalid")))(action);
         }
+
+        // Response
+        const response = {
+          task: {
+            id: progressedTask.id,
+            progress: progressedTask.progress,
+            content: progressedTask.content,
+            deadline: progressedTask.deadline,
+            registerd_at: progressedTask.registerd_at,
+            started_at: progressedTask.started_at,
+            finished_at: progressedTask.finished_at,
+          },
+        };
+        return res.status(200).json({
+          message,
+          data: response,
+        });
       })
     )
+
     .all(genMethodNotAllowedHandler(["PATCH"]));
 
   tasksRouter
     .route("/")
+
     // get tasks
     .get(
       genContentNegotiator(["json"]),
@@ -175,6 +172,7 @@ export const genTasksRouter = (
         });
       })
     )
+
     // register task
     .post(
       genContentNegotiator(["json"]),
@@ -217,6 +215,7 @@ export const genTasksRouter = (
         });
       })
     )
+
     .all(genMethodNotAllowedHandler(["GET", "POST"]));
 
   return tasksRouter;

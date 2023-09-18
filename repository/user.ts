@@ -18,6 +18,7 @@ export const userRepo: UserDAO = {
       });
     });
   },
+
   updateAccessTime(knex: Knex, id: UserDTO["id"]) {
     const query = knex("user")
       .where("id", id)
@@ -27,6 +28,7 @@ export const userRepo: UserDAO = {
       query.then(() => resolve());
     });
   },
+
   insert(knex: Knex, { id, hashed_password }: UserDTO) {
     const query = knex("user").insert({ id, hashed_password });
 

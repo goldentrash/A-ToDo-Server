@@ -8,6 +8,7 @@ export const genTaskService = (taskRepo: TaskDAO) => ({
   async search(user_id: TaskDTO["user_id"], searchOption: SearchOption) {
     return await taskRepo.findByUser(knex, user_id, searchOption);
   },
+
   async register({
     user_id,
     content,
@@ -30,6 +31,7 @@ export const genTaskService = (taskRepo: TaskDAO) => ({
       throw err;
     }
   },
+
   async start({ id, user_id }: Pick<TaskDTO, "id" | "user_id">) {
     const trx = await knex.transaction();
 
@@ -48,6 +50,7 @@ export const genTaskService = (taskRepo: TaskDAO) => ({
       throw err;
     }
   },
+
   async finish({ id, user_id }: Pick<TaskDTO, "id" | "user_id">) {
     const trx = await knex.transaction();
 
@@ -66,6 +69,7 @@ export const genTaskService = (taskRepo: TaskDAO) => ({
       throw err;
     }
   },
+
   async updateContent({
     id,
     user_id,

@@ -12,6 +12,7 @@ export const genUsersRouter = (userService: UserService) => {
 
   usersRouter
     .route("/:user_id/token")
+
     // sign in
     .post(
       genContentNegotiator(["json"]),
@@ -34,10 +35,12 @@ export const genUsersRouter = (userService: UserService) => {
         });
       })
     )
+
     .all(genMethodNotAllowedHandler(["POST"]));
 
   usersRouter
     .route("/")
+
     // sign up
     .post(
       genContentNegotiator(["json"]),
@@ -59,6 +62,7 @@ export const genUsersRouter = (userService: UserService) => {
         });
       })
     )
+
     .all(genMethodNotAllowedHandler(["POST"]));
 
   return usersRouter;
