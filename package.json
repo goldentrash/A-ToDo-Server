@@ -34,6 +34,8 @@
   },
   "devDependencies": {
     "@types/bcrypt": "^5.0.0",
+    "@types/chai": "^4.3.6",
+    "@types/chai-as-promised": "^7.1.6",
     "@types/debug": "^4.1.8",
     "@types/express": "^4.17.17",
     "@types/jsonwebtoken": "^9.0.2",
@@ -43,6 +45,8 @@
     "@types/node": "^20.4.0",
     "@typescript-eslint/eslint-plugin": "^5.61.0",
     "@typescript-eslint/parser": "^5.61.0",
+    "chai": "^4.3.8",
+    "chai-as-promised": "^7.1.1",
     "concurrently": "^8.2.0",
     "eslint": "^8.44.0",
     "eslint-config-prettier": "^8.8.0",
