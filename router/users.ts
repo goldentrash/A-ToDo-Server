@@ -16,16 +16,21 @@ export const genUsersRouter = (userService: UserService) => {
     .post(
       genContentNegotiator(["json"]),
       asyncHandlerWrapper(async (req, res, next) => {
+        // Validation
         const { user_id: id } = req.params;
         const { password } = req.body;
         if (!password) return next(createError(400, "Property Absent"));
         if (typeof password !== "string")
           return next(createError(400, "Property Invalid"));
 
+        // Process
         const token = await userService.signIn(id, password);
+
+        // Response
+        const response = { token };
         return res.status(200).json({
           message: "Access Accepted",
-          data: { token },
+          data: response,
         });
       })
     )
@@ -37,14 +42,20 @@ export const genUsersRouter = (userService: UserService) => {
     .post(
       genContentNegotiator(["json"]),
       asyncHandlerWrapper(async (req, res, next) => {
+        // Validation
         const { id, password } = req.body;
         if (!id || !password) return next(createError(400, "Property Absent"));
         if (typeof password !== "string")
           return next(createError(400, "Property Invalid"));
 
+        // Process
         await userService.signUp(id, password);
+
+        // Response
+        const response = { user_id: id };
         return res.status(201).json({
           message: "User Created",
+          data: response,
         });
       })
     )
