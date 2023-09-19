@@ -15,7 +15,7 @@ export default class UserDomain {
   private id: string;
   private hashed_password: string;
 
-  constructor(userDTO: UserDTO) {
+  constructor(userDTO: Pick<UserDTO, "id" | "hashed_password">) {
     this.id = userDTO.id;
     this.hashed_password = userDTO.hashed_password;
   }

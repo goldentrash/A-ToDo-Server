@@ -4,3 +4,4 @@ spec: "**/*.spec.ts"
 require:
   - "ts-node/register"
   - "dotenv/config"
+exit: true

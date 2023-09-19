@@ -3,12 +3,16 @@ import { type Knex } from "knex";
 export type UserDTO = {
   id: string;
   hashed_password: string;
+  last_accessed_at: string;
 };
 
 export type UserDAO = {
   findById(knex: Knex, id: UserDTO["id"]): Promise<UserDTO>;
   updateAccessTime(knex: Knex, id: UserDTO["id"]): Promise<void>;
-  insert(knex: Knex, user: UserDTO): Promise<void>;
+  insert(
+    knex: Knex,
+    user: Pick<UserDTO, "id" | "hashed_password">
+  ): Promise<void>;
 };
 
 export type TaskDTO = {

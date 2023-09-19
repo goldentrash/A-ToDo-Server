@@ -14,6 +14,7 @@ export const userRepo: UserDAO = {
         return resolve({
           id: user.id,
           hashed_password: user.hashed_password,
+          last_accessed_at: user.last_accessed_at,
         });
       });
     });
