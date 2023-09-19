@@ -15,8 +15,8 @@ jobs:
         with:
           node-version: 18
           cache: yarn
-      - run: yarn --frozen-lockfile
-
+      - name: install dependencies
+        run: yarn --frozen-lockfile
       - name: create .env (local TEST)
         run: |
           touch .env
@@ -24,11 +24,13 @@ jobs:
           echo "DB_ROOT_PASSWORD=root" >> .env
           echo "DEBUG=${{ vars.DEBUG }}" >> .env
           echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
-      - run: sudo service mysql start
-      - run: mysql --user=root --password=root --execute="CREATE DATABASE a_todo CHARACTER SET utf8;"
-      - run: yarn db:migrate
-      - run: yarn test
-
+      - name: set up DB
+        run: |
+          sudo service mysql start
+          mysql --user=root --password=root --execute="CREATE DATABASE a_todo CHARACTER SET utf8;"
+          yarn db:migrate
+      - name: test
+        run: yarn test
       - uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
@@ -38,4 +40,7 @@ jobs:
           echo "DB_HOST=${{ secrets.DB_HOST }}" >> .env
           echo "DB_USER=${{ secrets.DB_USER }}" >> .env
           echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
-      - run: yarn build
+      - name: build & push
+        run: |
+          yarn build
+          yarn docker:push
