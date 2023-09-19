@@ -11,7 +11,7 @@ describe("User Repository", function () {
   });
 
   beforeEach(async function () {
-    await knex("user").truncate();
+    await knex("user").del();
   });
 
   describe("Insert & Find", function () {
