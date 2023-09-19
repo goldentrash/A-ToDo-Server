@@ -6,8 +6,12 @@ import { knex, userRepo } from "./index";
 chai.use(chaiAsPromised);
 
 describe("User Repository", function () {
+  before(async function () {
+    await knex("task").truncate();
+  });
+
   beforeEach(async function () {
-    await knex("user").del();
+    await knex("user").truncate();
   });
 
   describe("Insert & Find", function () {
