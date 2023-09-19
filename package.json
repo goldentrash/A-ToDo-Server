@@ -14,7 +14,7 @@
     "profile": "script/profile.sh doctor",
     "profile:io": "script/profile.sh bubbleprof",
     "profile:cpu": "script/profile.sh flame",
-    "test": "script/test.sh",
+    "test": "mocha",
     "db:migrate": "knex migrate:latest",
     "db:rollback": "knex migrate:rollback",
     "build": "tsc && tsc-alias && docker build --tag goldentrash/a-todo-server:latest .",
