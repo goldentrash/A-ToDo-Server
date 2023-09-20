@@ -81,10 +81,12 @@ export const genTasksRouter = (
         await userService.updateAccessTime(user_id);
 
         const { task_id } = req.params;
-        const { action }: { action?: "start" | "finish" } = req.body;
+        const { action } = req.query;
         if (isNaN(parseInt(task_id)))
           return next(createError(400, "Task ID Invalid"));
         if (!action) return next(createError(400, "Property Absent"));
+        if (action !== "start" && action !== "finish")
+          return next(createError(400, "Action Invalid"));
 
         // Process
         let message: string;
