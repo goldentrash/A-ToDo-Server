@@ -29,7 +29,7 @@ export const genTasksRouter = (
         const authorization = req.get("Authorization");
         if (!authorization) return next(createError(401, "Not Authorized"));
 
-        const { user_id } = userService.verify(authorization);
+        const user_id = await userService.verify(authorization);
         await userService.updateAccessTime(user_id);
 
         const { task_id } = req.params;
@@ -77,7 +77,7 @@ export const genTasksRouter = (
         const authorization = req.get("Authorization");
         if (!authorization) return next(createError(401, "Not Authorized"));
 
-        const { user_id } = userService.verify(authorization);
+        const user_id = await userService.verify(authorization);
         await userService.updateAccessTime(user_id);
 
         const { task_id } = req.params;
@@ -141,7 +141,7 @@ export const genTasksRouter = (
         const authorization = req.get("Authorization");
         if (!authorization) return next(createError(401, "Not Authorized"));
 
-        const { user_id } = userService.verify(authorization);
+        const user_id = await userService.verify(authorization);
         await userService.updateAccessTime(user_id);
 
         const option: SearchOption = { sort: null, filter: { progress: null } };
@@ -181,7 +181,7 @@ export const genTasksRouter = (
         const authorization = req.get("Authorization");
         if (!authorization) return next(createError(401, "Not Authorized"));
 
-        const { user_id } = userService.verify(authorization);
+        const user_id = await userService.verify(authorization);
         await userService.updateAccessTime(user_id);
 
         const { content, deadline } = req.body;

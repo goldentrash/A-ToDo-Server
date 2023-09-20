@@ -12,7 +12,9 @@ export const genUserService = (userRepo: UserDAO) => ({
     const userDTO = await userRepo.findById(knex, id);
     const user = new UserDomain(userDTO);
 
-    await user.verifyPassword(password);
+    if (!(await user.verifyPassword(password)))
+      throw createError(400, "Password Invalid");
+
     return user.genToken();
   },
 
@@ -25,11 +27,12 @@ export const genUserService = (userRepo: UserDAO) => ({
     return userRepo.updateAccessTime(knex, id);
   },
 
-  verify(authorization: string): TokenPayload {
+  async verify(authorization: string): Promise<UserDTO["id"]> {
     const [type, token] = authorization.split(" ");
     if (type !== "Bearer") throw createError(401, "Token Not Supported");
     if (!token) throw createError(401, "Not Authorized");
 
-    return UserDomain.verifyToken(token);
+    const tokenPayload = await UserDomain.extractTokenPayload(token);
+    return tokenPayload.user_id;
   },
 });

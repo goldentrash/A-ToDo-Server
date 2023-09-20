@@ -7,7 +7,7 @@ chai.use(chaiAsPromised);
 
 describe("User Domain", function () {
   describe("access_token (JWT)", function () {
-    it("User가 생성한 토큰은 인증 가능해야 함", function () {
+    it("유저가 생성한 토큰은 인증 가능해야 함", function () {
       // given
       const user = new UserDomain({
         id: "testuser",
@@ -18,7 +18,7 @@ describe("User Domain", function () {
       const token = user.genToken();
 
       // then
-      expect(() => UserDomain.verifyToken(token)).to.not.throw();
+      expect(UserDomain.extractTokenPayload(token)).to.eventually.not.throw();
     });
 
     it('유효하지 않은 토큰은 "Token Invalid"를 throw해야 함', function () {
@@ -26,13 +26,13 @@ describe("User Domain", function () {
       const fakeToken = "faketoken";
 
       // then
-      expect(() => UserDomain.verifyToken(fakeToken)).to.throw(
+      expect(UserDomain.extractTokenPayload(fakeToken)).to.eventually.throw(
         HttpError,
         "Token Invalid"
       );
     });
 
-    it("토큰 payload의 user_id는 토큰을 생성한 User의 id여야 함", function () {
+    it("토큰 payload의 user_id는 토큰을 생성한 유저의 id여야 함", async function () {
       // given
       const user = new UserDomain({
         id: "testuser",
@@ -43,7 +43,8 @@ describe("User Domain", function () {
       const token = user.genToken();
 
       // then
-      expect(UserDomain.verifyToken(token).user_id).to.equal("testuser");
+      const payload = await UserDomain.extractTokenPayload(token);
+      expect(payload.user_id).to.equal("testuser");
     });
   });
 
@@ -56,10 +57,10 @@ describe("User Domain", function () {
       });
 
       // then
-      expect(user.verifyPassword("password")).to.eventually.not.throw();
+      expect(await user.verifyPassword("password")).to.be.true;
     });
 
-    it('원본과 다른 password로 인증 시도시 "Password Invalid"를 throw해야 함', async function () {
+    it("원본과 다른 password로 인증이 불가능해야 함", async function () {
       // when
       const user = new UserDomain({
         id: "testuser",
@@ -67,10 +68,7 @@ describe("User Domain", function () {
       });
 
       // then
-      expect(user.verifyPassword("fakepassword")).to.eventually.throw(
-        HttpError,
-        "Password Invalid"
-      );
+      expect(await user.verifyPassword("fakepassword")).to.be.false;
     });
   });
 });
