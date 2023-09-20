@@ -78,5 +78,5 @@ app.use((err: unknown, req: Request, res: Response, _next: NextFunction) => {
 
 const port = parseInt(process.env.PORT ?? "3000");
 app.listen(port, () => {
-  logStream("$s", `Server listening on port ${port}`);
+  logStream("%s", `Server listening on port ${port}`);
 });
