@@ -5,7 +5,7 @@ import {
   genContentNegotiator,
   genMethodNotAllowedHandler,
 } from "./helper";
-import { type UserService } from "service";
+import { type UserService } from "../service";
 
 export const genUsersRouter = (userService: UserService) => {
   const usersRouter = express.Router();

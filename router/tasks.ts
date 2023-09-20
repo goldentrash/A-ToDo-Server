@@ -10,7 +10,7 @@ import {
   type UserService,
   type SearchOption,
   TaskDTO,
-} from "service";
+} from "../service";
 
 export const genTasksRouter = (
   taskService: TaskService,

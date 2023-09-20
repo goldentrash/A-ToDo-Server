@@ -10,14 +10,14 @@
   "author": "goldentrash <startoflateness@gmail.com>",
   "scripts": {
     "prepare": "husky install",
-    "start": "node --trace-deprecation --abort-on-uncaught-exception --require=ts-node/register --watch ./bin/www",
+    "start": "node --trace-deprecation --abort-on-uncaught-exception --require=ts-node/register --watch ./app.ts",
     "profile": "script/profile.sh doctor",
     "profile:io": "script/profile.sh bubbleprof",
     "profile:cpu": "script/profile.sh flame",
     "test": "mocha",
     "db:migrate": "knex migrate:latest",
     "db:rollback": "knex migrate:rollback",
-    "build": "tsc && tsc-alias && docker build --tag goldentrash/a-todo-server:latest .",
+    "build": "tsc && docker build --tag goldentrash/a-todo-server:latest .",
     "docker:push": "docker push goldentrash/a-todo-server",
     "docker:pull": "script/up2date_container.sh"
   },
@@ -57,7 +57,6 @@
     "prettier": "^3.0.0",
     "prettier-plugin-sh": "^0.13.1",
     "ts-node": "^10.9.1",
-    "tsc-alias": "^1.8.7",
     "typescript": "^5.1.6"
   }
 }
