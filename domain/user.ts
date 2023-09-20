@@ -3,7 +3,7 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { type UserDTO } from "../service";
 
-type TokenPayload = {
+export type TokenPayload = {
   user_id: UserDTO["id"];
 };
 

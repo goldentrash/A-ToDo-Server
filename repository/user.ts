@@ -1,10 +1,9 @@
 import { type QueryError } from "mysql2/promise";
 import createError from "http-errors";
-import { type Knex } from "knex";
 import { type UserDAO, type UserDTO } from "../service";
 
 export const userRepo: UserDAO = {
-  findById(knex: Knex, id: UserDTO["id"]) {
+  findById(knex, id) {
     const query = knex("user").where("id", id).first();
 
     return new Promise<UserDTO>((resolve, reject) => {
@@ -20,7 +19,7 @@ export const userRepo: UserDAO = {
     });
   },
 
-  updateAccessTime(knex: Knex, id: UserDTO["id"]) {
+  updateAccessTime(knex, id) {
     const query = knex("user")
       .where("id", id)
       .update("last_accessed_at", knex.fn.now());
@@ -30,7 +29,7 @@ export const userRepo: UserDAO = {
     });
   },
 
-  insert(knex: Knex, { id, hashed_password }: UserDTO) {
+  insert(knex, { id, hashed_password }) {
     const query = knex("user").insert({ id, hashed_password });
 
     return new Promise<void>((resolve, reject) => {

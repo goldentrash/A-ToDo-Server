@@ -5,7 +5,10 @@ import { type TaskDTO, type TaskDAO, type SearchOption } from "./type";
 export type TaskService = ReturnType<typeof genTaskService>;
 
 export const genTaskService = (taskRepo: TaskDAO) => ({
-  async search(user_id: TaskDTO["user_id"], searchOption: SearchOption) {
+  async search(
+    user_id: TaskDTO["user_id"],
+    searchOption: SearchOption
+  ): Promise<TaskDTO[]> {
     return await taskRepo.findByUser(knex, user_id, searchOption);
   },
 
@@ -13,7 +16,7 @@ export const genTaskService = (taskRepo: TaskDAO) => ({
     user_id,
     content,
     deadline,
-  }: Pick<TaskDTO, "user_id" | "content" | "deadline">) {
+  }: Pick<TaskDTO, "user_id" | "content" | "deadline">): Promise<TaskDTO> {
     const trx = await knex.transaction();
 
     try {
@@ -32,7 +35,10 @@ export const genTaskService = (taskRepo: TaskDAO) => ({
     }
   },
 
-  async start({ id, user_id }: Pick<TaskDTO, "id" | "user_id">) {
+  async start({
+    id,
+    user_id,
+  }: Pick<TaskDTO, "id" | "user_id">): Promise<TaskDTO> {
     const trx = await knex.transaction();
 
     try {
@@ -51,7 +57,10 @@ export const genTaskService = (taskRepo: TaskDAO) => ({
     }
   },
 
-  async finish({ id, user_id }: Pick<TaskDTO, "id" | "user_id">) {
+  async finish({
+    id,
+    user_id,
+  }: Pick<TaskDTO, "id" | "user_id">): Promise<TaskDTO> {
     const trx = await knex.transaction();
 
     try {
@@ -74,7 +83,7 @@ export const genTaskService = (taskRepo: TaskDAO) => ({
     id,
     user_id,
     content,
-  }: Pick<TaskDTO, "id" | "user_id" | "content">) {
+  }: Pick<TaskDTO, "id" | "user_id" | "content">): Promise<TaskDTO> {
     const trx = await knex.transaction();
 
     try {

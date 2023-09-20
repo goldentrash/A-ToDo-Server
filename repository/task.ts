@@ -1,10 +1,9 @@
 import { type QueryError } from "mysql2/promise";
 import createError from "http-errors";
-import { type Knex } from "knex";
-import { type TaskDAO, type TaskDTO, type SearchOption } from "../service";
+import { type TaskDAO, type TaskDTO } from "../service";
 
 export const taskRepo: TaskDAO = {
-  findById(knex: Knex, id: TaskDTO["id"]) {
+  findById(knex, id) {
     const query = knex("task").where("id", id).first();
 
     return new Promise<TaskDTO>((resolve, reject) => {
@@ -25,11 +24,7 @@ export const taskRepo: TaskDAO = {
     });
   },
 
-  findByUser(
-    knex: Knex,
-    user_id: TaskDTO["user_id"],
-    { sort, filter: { progress } }: SearchOption
-  ) {
+  findByUser(knex, user_id, { sort, filter: { progress } }) {
     const query = knex("task").where("user_id", user_id);
     if (progress) query.whereIn("progress", progress);
     if (sort) query.orderBy(sort);
@@ -52,14 +47,7 @@ export const taskRepo: TaskDAO = {
     });
   },
 
-  insert(
-    knex: Knex,
-    {
-      user_id,
-      content,
-      deadline,
-    }: Pick<TaskDTO, "user_id" | "content" | "deadline">
-  ) {
+  insert(knex, { user_id, content, deadline }) {
     const query = knex("task").insert({ user_id, content, deadline });
 
     return new Promise<TaskDTO["id"]>((resolve, reject) => {
@@ -79,7 +67,7 @@ export const taskRepo: TaskDAO = {
     });
   },
 
-  updateProgress(knex: Knex, { id, progress }: TaskDTO) {
+  updateProgress(knex, { id, progress }) {
     switch (progress) {
       case "todo":
         throw Error("unreachable case");
@@ -128,7 +116,7 @@ export const taskRepo: TaskDAO = {
     }
   },
 
-  updateContent(knex: Knex, { id, content }: TaskDTO) {
+  updateContent(knex, { id, content }) {
     const query = knex("task").where("id", id).update("content", content);
 
     return new Promise<void>((resolve, reject) => {
