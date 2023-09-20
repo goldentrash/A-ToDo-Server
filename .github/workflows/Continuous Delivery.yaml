@@ -6,7 +6,7 @@ on:
       - master
 
 jobs:
-  deliver to docker-hub:
+  deliver_to_docker-hub:
     runs-on: ubuntu-22.04
 
     steps:
