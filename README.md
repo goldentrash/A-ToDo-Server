@@ -4,11 +4,11 @@
 
 ## REST API
 
-see [Postman workspace](https://www.postman.com/whitepianow/workspace/a-todo)
+visit [Postman workspace](https://www.postman.com/whitepianow/workspace/a-todo)
 
 ## service
 
-visit [whitepiano-codeserver.pe.kr](http://whitepiano-codeserver.pe.kr/)
+[whitepiano-codeserver.pe.kr](http://whitepiano-codeserver.pe.kr/)
 
 ## version comments
 

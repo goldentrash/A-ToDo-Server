@@ -12,7 +12,10 @@ export const knex = Knex({
     database: "a_todo",
     dateStrings: true,
   },
-  pool: { min: 0, max: 7 },
+  pool: {
+    min: parseInt(process.env.DB_POOL_MIN ?? "0"),
+    max: parseInt(process.env.DB_POOL_MAX ?? "7"),
+  },
 });
 
 export { userRepo } from "./user";
