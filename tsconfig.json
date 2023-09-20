@@ -6,6 +6,7 @@
     "service/**/*",
     "app.ts"
   ],
+  "exclude": ["**/*.spec.ts"],
   "ts-node": {
     "transpileOnly": true
   },
