@@ -29,21 +29,23 @@ export const taskRepo: TaskDAO = {
     if (progress) query.whereIn("progress", progress);
     if (sort) query.orderBy(sort);
 
-    return new Promise<TaskDTO[]>((resolve, _reject) => {
-      query.then((taskArr) => {
-        return resolve(
-          taskArr.map((task) => ({
-            id: task.id,
-            user_id: task.user_id,
-            progress: task.progress,
-            content: task.content,
-            deadline: task.deadline,
-            registerd_at: task.registerd_at,
-            started_at: task.started_at,
-            finished_at: task.finished_at,
-          }))
-        );
-      });
+    return new Promise<TaskDTO[]>((resolve, reject) => {
+      query
+        .then((taskArr) => {
+          return resolve(
+            taskArr.map((task) => ({
+              id: task.id,
+              user_id: task.user_id,
+              progress: task.progress,
+              content: task.content,
+              deadline: task.deadline,
+              registerd_at: task.registerd_at,
+              started_at: task.started_at,
+              finished_at: task.finished_at,
+            }))
+          );
+        })
+        .catch(reject);
     });
   },
 
