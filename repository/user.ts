@@ -24,8 +24,8 @@ export const userRepo: UserDAO = {
       .where("id", id)
       .update("last_accessed_at", knex.fn.now());
 
-    return new Promise<void>((resolve, _reject) => {
-      query.then(() => resolve());
+    return new Promise<void>((resolve, reject) => {
+      query.then(() => resolve()).catch(reject);
     });
   },
 
