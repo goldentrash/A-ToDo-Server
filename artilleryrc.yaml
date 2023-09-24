@@ -3,12 +3,11 @@ config:
   plugins:
     metrics-by-endpoint:
       useOnlyRequestNames: true
-      metricsNamespace: "latency_metrics"
     ensure: {}
   ensure:
     thresholds:
-      - "latency_metrics.response_time.orders.p95": 150
-      - "latency_metrics.response_time.orders.p99": 250
+      - "http.response_time.p95": 150
+      - "http.response_time.p99": 250
   phases:
     - name: warm up
       duration: 300
