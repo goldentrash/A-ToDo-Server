@@ -56,11 +56,9 @@ scenarios:
                 as: task_id
           - patch:
               name: Start Task
-              url: /tasks/{{ task_id }}
+              url: /tasks/{{ task_id }}?action=start
               headers:
                 Authorization: Bearer {{ token }}
-              json:
-                action: start
           - put:
               name: Update Task Content
               url: /tasks/{{ task_id }}/content
@@ -70,9 +68,7 @@ scenarios:
                 content: updated content
           - patch:
               name: Finish Task
-              url: /tasks/{{ task_id }}
+              url: /tasks/{{ task_id }}?action=finish
               headers:
                 Authorization: Bearer {{ token }}
-              json:
-                action: finish
         count: 2
