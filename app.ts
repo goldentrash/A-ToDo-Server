@@ -1,7 +1,8 @@
 import "dotenv/config";
-import debug from "debug";
 import createError, { HttpError } from "http-errors";
-import logger from "morgan";
+import morgan from "morgan";
+import path from "path";
+import * as rfs from "rotating-file-stream";
 import express, {
   type Request,
   type Response,
@@ -11,20 +12,23 @@ import { genUsersRouter, genTasksRouter } from "./router";
 import { genUserService, genTaskService } from "./service";
 import { userRepo, taskRepo } from "./repository";
 
+const LOG_ROTATION_INTERVAL = process.env.LOG_ROTATION_INTERVAL ?? "1d";
+const errStream = rfs.createStream("error.log", {
+  interval: LOG_ROTATION_INTERVAL,
+  path: path.join(__dirname, "logs"),
+});
+const logStream = rfs.createStream("access.log", {
+  interval: LOG_ROTATION_INTERVAL,
+  path: path.join(__dirname, "logs"),
+});
+
 const app = express();
-
-const errStream = debug("a-todo:error");
-const logStream = debug("a-todo:log");
-logStream.log = console.log.bind(console);
-const detailedLogStream = debug("a-todo:log:detailed");
-detailedLogStream.log = console.log.bind(console);
-
-app.use(
-  logger("dev", {
-    stream: { write: (log: string) => logStream(log.trimEnd()) },
-  })
-);
 app.use(express.json());
+app.use(
+  process.env.NODE_ENV === "production"
+    ? morgan("combined", { stream: logStream })
+    : morgan("dev")
+);
 
 // inject dependencies
 const userService = genUserService(userRepo);
@@ -53,30 +57,24 @@ app.use((err: unknown, req: Request, res: Response, _next: NextFunction) => {
     message = "Internal Server Error";
   }
 
-  if (status >= 500)
-    errStream("%o", {
+  errStream.write(
+    `${JSON.stringify({
       err: `${status} ${message}`,
-      errDetail: err,
+      errDetail: status < 500 ? undefined : err,
       request: {
         startLine: `${req.protocol} ${req.method} ${req.originalUrl}`,
         headers: req.headers,
         body: req.body,
       },
-    });
-  else
-    detailedLogStream("%o", {
-      err: `${status} ${message}`,
-      request: {
-        startLine: `${req.protocol} ${req.method} ${req.originalUrl}`,
-        headers: req.headers,
-        body: req.body,
-      },
-    });
+    })}\n`
+  );
 
   return res.status(status).json({ error: message });
 });
 
 const port = parseInt(process.env.PORT ?? "3000");
 app.listen(port, () => {
-  logStream("%s", `Server listening on port ${port}`);
+  process.env.NODE_ENV === "production"
+    ? logStream.write(`Server listening on port ${port}\n`)
+    : console.info(`Server listening on port ${port}`);
 });

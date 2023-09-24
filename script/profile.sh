@@ -20,7 +20,7 @@ echo
 
 # profile application
 echo run and monitor server:
-DEBUG=a-todo:error clinic $PROFILER \
+NODE_ENV=production clinic $PROFILER \
   --on-port "artillery run ./artilleryrc.yaml" \
   -- node --trace-deprecation --abort-on-uncaught-exception --require=ts-node/register ./app.ts
 echo
