@@ -1,6 +1,6 @@
 import { type QueryError } from "mysql2/promise";
 import createError from "http-errors";
-import { type UserDAO, type UserDTO } from "../service";
+import { type UserDAO, type UserDTO } from "../services";
 
 export const userRepo: UserDAO = {
   findById(knex, id) {

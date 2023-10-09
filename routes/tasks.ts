@@ -1,16 +1,16 @@
 import express from "express";
 import createError from "http-errors";
 import {
-  asyncHandlerWrapper,
-  genContentNegotiator,
-  genMethodNotAllowedHandler,
-} from "./helper";
-import {
   type TaskService,
   type UserService,
   type SearchOption,
   TaskDTO,
-} from "../service";
+} from "../services";
+import {
+  asyncHandlerWrapper,
+  genContentNegotiator,
+  genMethodNotAllowedHandler,
+} from "./helper";
 
 export const genTasksRouter = (
   taskService: TaskService,

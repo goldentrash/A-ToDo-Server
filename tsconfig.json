@@ -1,14 +1,16 @@
 {
   "include": [
-    "domain/**/*",
-    "repository/**/*",
-    "router/**/*",
-    "service/**/*",
+    "constants/**/*",
+    "domains/**/*",
+    "repositories/**/*",
+    "routes/**/*",
+    "services/**/*",
     "app.ts"
   ],
   "exclude": ["**/*.spec.ts"],
   "ts-node": {
-    "transpileOnly": true
+    "transpileOnly": true,
+    "skipIgnore": true
   },
   "compilerOptions": {
     /* Visit https://aka.ms/tsconfig to read more about this file */

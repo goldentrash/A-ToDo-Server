@@ -5,5 +5,5 @@ export {
   type TaskDAO,
   type SearchOption,
 } from "./type";
-export { genUserService, type UserService } from "./user";
 export { genTaskService, type TaskService } from "./task";
+export { genUserService, type UserService } from "./user";

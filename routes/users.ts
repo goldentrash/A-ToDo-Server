@@ -1,11 +1,11 @@
 import express from "express";
 import createError from "http-errors";
+import { type UserService } from "../services";
 import {
   asyncHandlerWrapper,
   genContentNegotiator,
   genMethodNotAllowedHandler,
 } from "./helper";
-import { type UserService } from "../service";
 
 export const genUsersRouter = (userService: UserService) => {
   const usersRouter = express.Router();

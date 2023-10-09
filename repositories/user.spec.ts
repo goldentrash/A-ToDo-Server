@@ -1,7 +1,7 @@
 import chai, { expect } from "chai";
 import chaiAsPromised from "chai-as-promised";
 import { HttpError } from "http-errors";
-import { knex, userRepo } from "./index";
+import { knex, userRepo } from ".";
 
 chai.use(chaiAsPromised);
 

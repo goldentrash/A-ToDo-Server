@@ -1,5 +1,5 @@
 import createError from "http-errors";
-import { knex } from "../repository";
+import { knex } from "../repositories";
 import { type TaskDTO, type TaskDAO, type SearchOption } from "./type";
 
 export type TaskService = ReturnType<typeof genTaskService>;

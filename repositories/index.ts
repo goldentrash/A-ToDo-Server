@@ -1,10 +1,11 @@
 import Knex from "knex";
+import { DB_POOL_MAX, DB_POOL_MIN } from "../constants";
 
 export const knex = Knex({
   client: "mysql2",
   connection: {
     host: process.env.DB_HOST ?? "127.0.0.1",
-    port: parseInt(process.env.DB_PORT ?? "3306"),
+    port: process.env.DB_PORT ? parseInt(process.env.DB_PORT) : 3306,
     user: process.env.DB_USER ?? "root",
     password: process.env.DB_USER
       ? process.env.DB_PASSWORD
@@ -13,8 +14,8 @@ export const knex = Knex({
     dateStrings: true,
   },
   pool: {
-    min: parseInt(process.env.DB_POOL_MIN ?? "0"),
-    max: parseInt(process.env.DB_POOL_MAX ?? "7"),
+    min: DB_POOL_MIN,
+    max: DB_POOL_MAX,
   },
 });
 

@@ -1,6 +1,6 @@
 import { type QueryError } from "mysql2/promise";
 import createError from "http-errors";
-import { type TaskDAO, type TaskDTO } from "../service";
+import { type TaskDAO, type TaskDTO } from "../services";
 
 export const taskRepo: TaskDAO = {
   findById(knex, id) {
