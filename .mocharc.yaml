@@ -1,6 +1,9 @@
 extension:
   - "ts"
-spec: "**/*.spec.ts"
+ignore:
+  - "node_modules/**/*"
+spec:
+  - "**/*.spec.ts"
 require:
   - "dotenv/config"
 loader:
