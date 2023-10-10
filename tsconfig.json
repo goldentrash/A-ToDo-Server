@@ -5,6 +5,7 @@
     "repositories/**/*",
     "routes/**/*",
     "services/**/*",
+    "streams/**/*",
     "app.ts"
   ],
   "exclude": ["**/*.spec.ts"],

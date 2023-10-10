@@ -1,8 +1,6 @@
 import "dotenv/config";
 import createError, { HttpError } from "http-errors";
 import morgan from "morgan";
-import path from "path";
-import * as rfs from "rotating-file-stream";
 import express, {
   type Request,
   type Response,
@@ -11,22 +9,16 @@ import express, {
 import { genUsersRouter, genTasksRouter } from "./routes";
 import { genUserService, genTaskService } from "./services";
 import { userRepo, taskRepo } from "./repositories";
-import { LOG_ROTATION_INTERVAL } from "./constants";
-
-const errStream = rfs.createStream("error.log", {
-  interval: LOG_ROTATION_INTERVAL,
-  path: path.join(__dirname, "logs"),
-});
-const logStream = rfs.createStream("access.log", {
-  interval: LOG_ROTATION_INTERVAL,
-  path: path.join(__dirname, "logs"),
-});
+import { logStream, errStream } from "./streams";
 
 const app = express();
 app.use(express.json());
 app.use(
   process.env.NODE_ENV === "production"
-    ? morgan("combined", { stream: logStream })
+    ? morgan(
+        `[:date[clf]] "HTTP/:http-version :method :url" :status :res[content-length] ":referrer" ":user-agent"`,
+        { stream: logStream }
+      )
     : morgan("dev")
 );
 
