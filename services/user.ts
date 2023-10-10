@@ -35,4 +35,11 @@ export const genUserService = (userRepo: UserDAO) => ({
     const tokenPayload = await UserDomain.extractTokenPayload(token);
     return tokenPayload.user_id;
   },
+
+  async updatePushToken({
+    id,
+    push_token,
+  }: Pick<UserDTO, "id" | "push_token">): Promise<void> {
+    await userRepo.updatePushToken(knex, { id, push_token });
+  },
 });
