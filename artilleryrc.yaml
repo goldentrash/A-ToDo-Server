@@ -29,7 +29,7 @@ scenarios:
   - flow:
       - post:
           name: Sign In
-          url: /users/{{ user_id }}/token
+          url: /users/{{ user_id }}/access-token
           json:
             password: password
           capture:

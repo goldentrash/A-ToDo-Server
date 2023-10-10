@@ -11,7 +11,7 @@ export const genUsersRouter = (userService: UserService) => {
   const usersRouter = express.Router();
 
   usersRouter
-    .route("/:user_id/token")
+    .route("/:user_id/access-token")
 
     // sign in
     .post(
