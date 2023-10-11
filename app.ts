@@ -9,7 +9,7 @@ import express, {
 import { genUsersRouter, genTasksRouter } from "./routes";
 import { genUserService, genTaskService } from "./services";
 import { userRepo, taskRepo } from "./repositories";
-import { logStream, errStream } from "./streams";
+import { accessStream, errStream, logStream } from "./streams";
 
 const app = express();
 app.use(express.json());
@@ -17,7 +17,7 @@ app.use(
   process.env.NODE_ENV === "production"
     ? morgan(
         `[:date[clf]] "HTTP/:http-version :method :url" :status :res[content-length] ":referrer" ":user-agent"`,
-        { stream: logStream }
+        { stream: accessStream }
       )
     : morgan("dev")
 );
