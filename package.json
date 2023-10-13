@@ -24,12 +24,14 @@
   "dependencies": {
     "bcrypt": "^5.1.0",
     "dotenv": "^16.3.1",
+    "expo-server-sdk": "^3.7.0",
     "express": "~4.16.1",
     "http-errors": "~1.6.3",
     "jsonwebtoken": "^9.0.1",
     "knex": "^2.5.1",
     "morgan": "~1.9.1",
     "mysql2": "^3.5.2",
+    "node-schedule": "^2.1.1",
     "rotating-file-stream": "^3.1.1"
   },
   "devDependencies": {
@@ -42,6 +44,7 @@
     "@types/morgan": "^1.9.4",
     "@types/mysql": "^2.15.21",
     "@types/node": "^20.4.0",
+    "@types/node-schedule": "^2.1.1",
     "@typescript-eslint/eslint-plugin": "^5.61.0",
     "@typescript-eslint/parser": "^5.61.0",
     "artillery": "^2.0.0-37",

@@ -10,6 +10,7 @@ import { genUsersRouter, genTasksRouter } from "./routes";
 import { genUserService, genTaskService } from "./services";
 import { userRepo, taskRepo } from "./repositories";
 import { accessStream, errStream, logStream } from "./streams";
+import "./schedules";
 
 const app = express();
 app.use(express.json());
