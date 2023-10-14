@@ -66,8 +66,4 @@ app.use((err: unknown, req: Request, res: Response, _next: NextFunction) => {
 });
 
 const port = process.env.PORT ? parseInt(process.env.PORT) : 3_000;
-app.listen(port, () => {
-  process.env.NODE_ENV === "production"
-    ? logStream.write(`Server listening on port ${port}\n`)
-    : console.info(`Server listening on port ${port}`);
-});
+app.listen(port, () => logStream.write(`Server listening on port ${port}\n`));
