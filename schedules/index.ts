@@ -7,3 +7,4 @@ const EXPO_ACCESS_TOKEN = process.env.EXPO_ACCESS_TOKEN;
 export const expo = new Expo({ accessToken: EXPO_ACCESS_TOKEN });
 
 import "./pushWatingAlarm";
+import "./pushOldWorkingHint";

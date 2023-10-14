@@ -2,11 +2,11 @@ import { scheduleJob } from "node-schedule";
 import { type ExpoPushMessage } from "expo-server-sdk";
 import { logStream } from "../streams";
 import { knex } from "../repositories";
-import { PUSH_CHANNEL_ID } from "../constants";
+import { PUSH_CHANNEL_ID, SCHEDULE_PUSH_WATING_ALARM } from "../constants";
 import { expo } from ".";
 
 logStream.write(`Schedule Job pushWatingAlarm\n`);
-scheduleJob({ hour: 8 }, async () => {
+scheduleJob(SCHEDULE_PUSH_WATING_ALARM, async () => {
   const query = knex("task")
     .innerJoin("user", "task.user_id", "user.id")
     .where("progress", "todo")
