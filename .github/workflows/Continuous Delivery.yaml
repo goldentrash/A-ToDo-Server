@@ -26,9 +26,7 @@ jobs:
         run: |
           echo "NODE_ENV=production" > .env
           echo "DB_ROOT_PASSWORD=root" >> .env
-          echo "LOG_ROTATION_INTERVAL=${{ vars.LOG_ROTATION_INTERVAL }}" >> .env
           echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
-          echo "JWT_EXP=${{ secrets.JWT_EXP }}" >> .env
           echo "SALT_ROUND=${{ secrets.SALT_ROUND }}" >> .env
 
       - name: Set up DB
@@ -52,9 +50,7 @@ jobs:
           echo "DB_HOST=${{ secrets.DB_HOST }}" >> .env
           echo "DB_USER=${{ secrets.DB_USER }}" >> .env
           echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
-          echo "LOG_ROTATION_INTERVAL=${{ vars.LOG_ROTATION_INTERVAL }}" >> .env
           echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
-          echo "JWT_EXP=${{ secrets.JWT_EXP }}" >> .env
           echo "SALT_ROUND=${{ secrets.SALT_ROUND }}" >> .env
 
       - name: Build docker image

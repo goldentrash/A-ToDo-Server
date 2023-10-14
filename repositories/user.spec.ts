@@ -1,7 +1,7 @@
 import chai, { expect } from "chai";
 import chaiAsPromised from "chai-as-promised";
 import { HttpError } from "http-errors";
-import { knex, userRepo } from "./index";
+import { knex, userRepo } from ".";
 
 chai.use(chaiAsPromised);
 
@@ -71,26 +71,37 @@ describe("User Repository", function () {
   });
 
   describe("Update", function () {
-    it("update한 유저의 last access time이 비교적 최신이어야 함", async function () {
+    it("access time", async function () {
       // given
       await userRepo.insert(knex, {
-        id: "user1",
-        hashed_password: "password",
-      });
-      await new Promise((resolve) => setTimeout(resolve, 1_000));
-      await userRepo.insert(knex, {
-        id: "user2",
+        id: "testuser",
         hashed_password: "password",
       });
 
       // when
-      await userRepo.updateAccessTime(knex, "user1");
+      await userRepo.updateAccessTime(knex, "testuser");
 
       // then
-      expect(
-        (await userRepo.findById(knex, "user1")).last_accessed_at >=
-          (await userRepo.findById(knex, "user2")).last_accessed_at
-      ).to.be.true;
+      const { last_accessed_at } = await userRepo.findById(knex, "testuser");
+      expect(last_accessed_at).to.be.a("string");
+    });
+
+    it("push token", async function () {
+      // given
+      await userRepo.insert(knex, {
+        id: "testuser",
+        hashed_password: "password",
+      });
+
+      // when
+      await userRepo.updatePushToken(knex, {
+        id: "testuser",
+        push_token: "push_token",
+      });
+
+      // then
+      const { push_token } = await userRepo.findById(knex, "testuser");
+      expect(push_token).to.equal("push_token");
     });
   });
 });

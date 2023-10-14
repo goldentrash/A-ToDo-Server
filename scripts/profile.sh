@@ -21,7 +21,7 @@ echo
 # profile application
 echo run and monitor server:
 NODE_ENV=production clinic $PROFILER \
-  --on-port "artillery run ./artilleryrc.yaml" \
+  --on-port "yarn artillery run ./artilleryrc.yaml" \
   -- node --trace-deprecation --abort-on-uncaught-exception --require=ts-node/register ./app.ts
 echo
 

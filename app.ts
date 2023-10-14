@@ -1,32 +1,25 @@
 import "dotenv/config";
 import createError, { HttpError } from "http-errors";
 import morgan from "morgan";
-import path from "path";
-import * as rfs from "rotating-file-stream";
 import express, {
   type Request,
   type Response,
   type NextFunction,
 } from "express";
-import { genUsersRouter, genTasksRouter } from "./router";
-import { genUserService, genTaskService } from "./service";
-import { userRepo, taskRepo } from "./repository";
-
-const LOG_ROTATION_INTERVAL = process.env.LOG_ROTATION_INTERVAL ?? "1d";
-const errStream = rfs.createStream("error.log", {
-  interval: LOG_ROTATION_INTERVAL,
-  path: path.join(__dirname, "logs"),
-});
-const logStream = rfs.createStream("access.log", {
-  interval: LOG_ROTATION_INTERVAL,
-  path: path.join(__dirname, "logs"),
-});
+import { genUsersRouter, genTasksRouter } from "./routes";
+import { genUserService, genTaskService } from "./services";
+import { userRepo, taskRepo } from "./repositories";
+import { accessStream, errStream, logStream } from "./streams";
+import "./schedules";
 
 const app = express();
 app.use(express.json());
 app.use(
   process.env.NODE_ENV === "production"
-    ? morgan("combined", { stream: logStream })
+    ? morgan(
+        `[:date[clf]] "HTTP/:http-version :method :url" :status :res[content-length] ":referrer" ":user-agent"`,
+        { stream: accessStream }
+      )
     : morgan("dev")
 );
 
@@ -72,9 +65,5 @@ app.use((err: unknown, req: Request, res: Response, _next: NextFunction) => {
   return res.status(status).json({ error: message });
 });
 
-const port = parseInt(process.env.PORT ?? "3000");
-app.listen(port, () => {
-  process.env.NODE_ENV === "production"
-    ? logStream.write(`Server listening on port ${port}\n`)
-    : console.info(`Server listening on port ${port}`);
-});
+const port = process.env.PORT ? parseInt(process.env.PORT) : 3_000;
+app.listen(port, () => logStream.write(`Server listening on port ${port}\n`));

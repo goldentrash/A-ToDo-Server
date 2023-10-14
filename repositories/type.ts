@@ -2,6 +2,7 @@ import { Knex } from "knex";
 
 export type UserEntity = {
   id: string;
+  push_token: string | null;
   hashed_password: string;
   registerd_at: string;
   last_accessed_at: string;

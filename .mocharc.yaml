@@ -1,7 +1,11 @@
 extension:
   - "ts"
-spec: "**/*.spec.ts"
+ignore:
+  - "node_modules/**/*"
+spec:
+  - "**/*.spec.ts"
 require:
-  - "ts-node/register"
   - "dotenv/config"
+loader:
+  - "ts-node/esm"
 exit: true

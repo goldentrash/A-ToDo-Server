@@ -1,9 +1,12 @@
 {
   "include": [
-    "domain/**/*",
-    "repository/**/*",
-    "router/**/*",
-    "service/**/*",
+    "constants/**/*",
+    "domains/**/*",
+    "repositories/**/*",
+    "routes/**/*",
+    "schedules/**/*",
+    "services/**/*",
+    "streams/**/*",
     "app.ts"
   ],
   "exclude": ["**/*.spec.ts"],

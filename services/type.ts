@@ -2,6 +2,7 @@ import { type Knex } from "knex";
 
 export type UserDTO = {
   id: string;
+  push_token: string | null;
   hashed_password: string;
   last_accessed_at: string;
 };
@@ -12,6 +13,10 @@ export type UserDAO = {
   insert(
     knex: Knex,
     user: Pick<UserDTO, "id" | "hashed_password">
+  ): Promise<void>;
+  updatePushToken(
+    knex: Knex,
+    user: Pick<UserDTO, "id" | "push_token">
   ): Promise<void>;
 };
 
