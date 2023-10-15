@@ -1,11 +1,11 @@
 import { scheduleJob } from "node-schedule";
 import { type ExpoPushMessage } from "expo-server-sdk";
-import { logStream } from "../streams";
+import { rotatingStream } from "../streams";
 import { knex } from "../repositories";
 import { PUSH_CHANNEL_ID, SCHEDULE_PUSH_WATING_ALARM } from "../constants";
 import { expo } from ".";
 
-logStream.write(`Schedule Job pushWatingAlarm\n`);
+rotatingStream.logInfo("Schedule Job pushWatingAlarm");
 scheduleJob(SCHEDULE_PUSH_WATING_ALARM, async () => {
   const query = knex("task")
     .innerJoin("user", "task.user_id", "user.id")
@@ -28,5 +28,5 @@ scheduleJob(SCHEDULE_PUSH_WATING_ALARM, async () => {
   await expo.sendPushNotificationsAsync(messages);
 
   for (const { to, title, body } of messages)
-    logStream.write(`Send [ ${title} - ${body} ] to ${to}\n`);
+    rotatingStream.logInfo(`Send [ ${title} - ${body} ] to ${to}`);
 });

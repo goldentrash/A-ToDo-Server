@@ -1,1 +1,6 @@
-export { accessStream, errStream, logStream } from "./rotating";
+export {
+  accessStream,
+  errorStream,
+  infoStream,
+  rotatingStream,
+} from "./rotating";
