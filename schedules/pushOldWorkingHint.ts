@@ -20,7 +20,9 @@ const query = knex("task")
   .having("time_passed", ">=", OLD_WORKING_BASE_TIME);
 
 rotatingStream.logInfo(
-  `Schedule pushOldWorkingHint at every ${SCHEDULE_PUSH_OLD_WORKING_HINT}`
+  `Schedule pushOldWorkingHint at every ${JSON.stringify(
+    SCHEDULE_PUSH_OLD_WORKING_HINT
+  )}`
 );
 scheduleJob(SCHEDULE_PUSH_OLD_WORKING_HINT, async () => {
   const targetList = (await query) as unknown as {
