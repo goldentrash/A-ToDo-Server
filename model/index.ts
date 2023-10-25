@@ -1,26 +1,14 @@
-import mysql from "mysql";
-import createError from "http-errors";
-import type { MysqlError } from "mysql";
+import mysql from "mysql2/promise";
 
 export const pool = mysql.createPool({
-  host: process.env.DB_HOST,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
+  host: process.env.DB_HOST ?? "127.0.0.1",
+  user: process.env.DB_USER ?? "root",
+  password: process.env.DB_USER
+    ? process.env.DB_PASSWORD
+    : process.env.DB_ROOT_PASSWORD,
   database: "a_todo",
+  dateStrings: true,
 });
 
-const userErrors: MysqlError["code"][] = [
-  "ER_DUP_ENTRY",
-  "ER_NO_REFERENCED_ROW_2",
-  "ER_TRUNCATED_WRONG_VALUE",
-  "ER_TRUNCATED_WRONG_VALUE_FOR_FIELD",
-  "ER_BAD_NULL_ERROR",
-];
-
-export const createDatabaseError = (err: MysqlError) =>
-  userErrors.includes(err.code)
-    ? createError(400, "Bad Request")
-    : createError(500, "database error");
-
-export const sql = (raw: TemplateStringsArray, ...args: string[]) =>
-  String.raw({ raw }, ...args);
+export { userModel, type User } from "./user";
+export { taskModel, type Task, type Todo, type Doing, type Done } from "./task";
