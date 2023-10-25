@@ -13,7 +13,6 @@ export type TaskEntity = {
   progress: "todo" | "doing" | "done";
   for_unique_doing_per_user: string;
   content: string;
-  memo: string;
   deadline: string;
   registerd_at: string;
   started_at: string | null;

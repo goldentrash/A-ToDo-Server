@@ -1,3 +1,4 @@
+import "dotenv/config";
 import debug from "debug";
 import createError, { HttpError } from "http-errors";
 import logger from "morgan";
@@ -6,15 +7,17 @@ import express, {
   type Response,
   type NextFunction,
 } from "express";
-import { genUsersRouter, genTasksRouter } from "router";
-import { genUserService, genTaskService } from "service";
-import { userRepo, taskRepo } from "repository";
+import { genUsersRouter, genTasksRouter } from "./router";
+import { genUserService, genTaskService } from "./service";
+import { userRepo, taskRepo } from "./repository";
 
 const app = express();
 
 const errStream = debug("a-todo:error");
 const logStream = debug("a-todo:log");
 logStream.log = console.log.bind(console);
+const detailedLogStream = debug("a-todo:log:detailed");
+detailedLogStream.log = console.log.bind(console);
 
 app.use(
   logger("dev", {
@@ -51,20 +54,20 @@ app.use((err: unknown, req: Request, res: Response, _next: NextFunction) => {
   }
 
   if (status >= 500)
-    errStream("%O", {
+    errStream("%o", {
       err: `${status} ${message}`,
       errDetail: err,
       request: {
-        startLine: `${req.method} ${req.originalUrl} ${req.protocol}`,
+        startLine: `${req.protocol} ${req.method} ${req.originalUrl}`,
         headers: req.headers,
         body: req.body,
       },
     });
   else
-    logStream("%O", {
+    detailedLogStream("%o", {
       err: `${status} ${message}`,
       request: {
-        startLine: `${req.method} ${req.originalUrl} ${req.protocol}`,
+        startLine: `${req.protocol} ${req.method} ${req.originalUrl}`,
         headers: req.headers,
         body: req.body,
       },
@@ -73,4 +76,7 @@ app.use((err: unknown, req: Request, res: Response, _next: NextFunction) => {
   return res.status(status).json({ error: message });
 });
 
-export = app;
+const port = parseInt(process.env.PORT ?? "3000");
+app.listen(port, () => {
+  logStream("%s", `Server listening on port ${port}`);
+});

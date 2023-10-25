@@ -3,12 +3,16 @@ import { type Knex } from "knex";
 export type UserDTO = {
   id: string;
   hashed_password: string;
+  last_accessed_at: string;
 };
 
 export type UserDAO = {
   findById(knex: Knex, id: UserDTO["id"]): Promise<UserDTO>;
   updateAccessTime(knex: Knex, id: UserDTO["id"]): Promise<void>;
-  insert(knex: Knex, user: UserDTO): Promise<void>;
+  insert(
+    knex: Knex,
+    user: Pick<UserDTO, "id" | "hashed_password">
+  ): Promise<void>;
 };
 
 export type TaskDTO = {
@@ -16,7 +20,6 @@ export type TaskDTO = {
   user_id: string;
   progress: "todo" | "doing" | "done";
   content: string;
-  memo: string;
   deadline: string;
   registerd_at: string;
   started_at: string | null;
@@ -29,20 +32,16 @@ export type SearchOption = {
 };
 
 export type TaskDAO = {
-  findById(kne: Knex, id: TaskDTO["id"]): Promise<TaskDTO>;
+  findById(knex: Knex, id: TaskDTO["id"]): Promise<TaskDTO>;
   findByUser(
-    kne: Knex,
+    knex: Knex,
     user_id: TaskDTO["user_id"],
     searchOption: SearchOption
   ): Promise<TaskDTO[]>;
   insert(
-    kne: Knex,
-    {
-      user_id,
-      content,
-      deadline,
-    }: Pick<TaskDTO, "user_id" | "content" | "deadline">
+    knex: Knex,
+    task: Pick<TaskDTO, "user_id" | "content" | "deadline">
   ): Promise<TaskDTO["id"]>;
-  updateProgress(kne: Knex, taskDTO: TaskDTO): Promise<void>;
-  setMemo(kne: Knex, taskDTO: TaskDTO): Promise<void>;
+  updateProgress(knex: Knex, task: TaskDTO): Promise<void>;
+  updateContent(knex: Knex, task: TaskDTO): Promise<void>;
 };

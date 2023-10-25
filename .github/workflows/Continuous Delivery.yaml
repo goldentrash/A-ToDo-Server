@@ -1,0 +1,64 @@
+name: Continuous Delivery
+
+on:
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  deliver_to_docker-hub:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: set up sources
+        uses: actions/checkout@v3
+
+      - name: set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          cache: yarn
+
+      - name: install dependencies
+        run: yarn --frozen-lockfile
+
+      - name: set up TEST env
+        run: |
+          echo "NODE_ENV=production" > .env
+          echo "DB_ROOT_PASSWORD=root" >> .env
+          echo "DEBUG=${{ vars.DEBUG }}" >> .env
+          echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
+          echo "JWT_EXP=${{ secrets.JWT_EXP }}" >> .env
+          echo "SALT_ROUND=${{ secrets.SALT_ROUND }}" >> .env
+
+      - name: set up DB
+        run: |
+          sudo service mysql start
+          mysql --user=root --password=root --execute="CREATE DATABASE a_todo CHARACTER SET utf8;"
+          yarn db:migrate
+
+      - name: test
+        run: yarn test
+
+      - name: login to docker-hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: set up PRODUCTION env
+        run: |
+          echo "NODE_ENV=production" > .env
+          echo "DB_HOST=${{ secrets.DB_HOST }}" >> .env
+          echo "DB_USER=${{ secrets.DB_USER }}" >> .env
+          echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
+          echo "DEBUG=${{ vars.DEBUG }}" >> .env
+          echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
+          echo "JWT_EXP=${{ secrets.JWT_EXP }}" >> .env
+          echo "SALT_ROUND=${{ secrets.SALT_ROUND }}" >> .env
+
+      - name: build docker image
+        run: yarn build
+
+      - name: push to docker-hub
+        run: yarn docker:push

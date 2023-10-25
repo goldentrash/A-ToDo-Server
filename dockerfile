@@ -5,7 +5,7 @@ FROM node:18
 WORKDIR /app
 COPY package.json yarn.lock ./
 RUN yarn install --production
-COPY ./ ./
+COPY dist .env ./
 
 EXPOSE 3000
-ENTRYPOINT ["./bin/www"]
+ENTRYPOINT ["node", "./app.js"]

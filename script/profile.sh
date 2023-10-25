@@ -1,35 +1,31 @@
 #! /bin/sh
 
-# check payload
-echo
-echo check payload:
-mkdir --parents ./.artillery
-SEED='./.artillery/id.csv'
-if [ ! -f $SEED ]; then
-  echo ${SEED} is required \(use script/gen_id.sh\)
-  exit 1
-fi
+CSV=./user_id.csv
+PROFILER=$1
 
-# set DB
-echo
-echo seed DB:
-yarn knex seed:run --specific=test.js
+# read .env
+export $(grep --invert-match '^#' .env | xargs --delimiter='\n')
 
-# build server
+# set up DB
+echo set up DB:
+yarn knex seed:run --specific=profile.js
 echo
-echo build server:
-yarn build:dist
 
-# profiling
+# generate User IDs
+echo generate User IDs:
+for i in $(seq 1 $NUM_OF_VUSER); do
+  echo user$i >> $CSV
+done
 echo
+
+# profile application
 echo run and monitor server:
-TIMESTAMP=$(date +%Y%m%d%H%M)
-DEBUG=a-todo:error clinic $1 --on-port \
-  'artillery run --output ./.artillery/'${TIMESTAMP}'report.json ./load_test.yaml' \
-  -- node ./bin/www
-artillery report --output ./.artillery/${TIMESTAMP}report.html ./.artillery/${TIMESTAMP}report.json
-
-# view result
+DEBUG=a-todo:error clinic $PROFILER \
+  --on-port "artillery run ./artilleryrc.yaml" \
+  -- node --trace-deprecation --abort-on-uncaught-exception --require=ts-node/register ./app.ts
 echo
-echo view results:
-open ./.artillery/${TIMESTAMP}report.html
+
+# clean up
+echo clean up:
+rm $CSV
+echo
