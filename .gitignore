@@ -1,5 +1,9 @@
-.vscode
+# typescript output
 dist
+
+# report
+.clinic
+.artillery
 
 # macOS
 .DS_Store

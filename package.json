@@ -11,7 +11,7 @@
   "scripts": {
     "prepare": "husky install",
     "start": "concurrently \"tsc --watch\" \"tsc-alias --watch\" \"node --watch ./bin/www\"",
-    "pretest": "knex seed:run --specific=e2e_test.js",
+    "profile": "script/profile.sh",
     "test": "script/test_e2e.sh",
     "db:migrate": "knex migrate:latest",
     "db:rollback": "knex migrate:rollback",
