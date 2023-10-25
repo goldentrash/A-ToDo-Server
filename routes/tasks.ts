@@ -1,16 +1,16 @@
 import express from "express";
 import createError from "http-errors";
 import {
-  asyncHandlerWrapper,
-  genContentNegotiator,
-  genMethodNotAllowedHandler,
-} from "./helper";
-import {
   type TaskService,
   type UserService,
   type SearchOption,
   TaskDTO,
-} from "../service";
+} from "../services";
+import {
+  asyncHandlerWrapper,
+  genContentNegotiator,
+  genMethodNotAllowedHandler,
+} from "./helper";
 
 export const genTasksRouter = (
   taskService: TaskService,
@@ -39,24 +39,14 @@ export const genTasksRouter = (
         if (!content) return next(createError(400, "Property Absent"));
 
         // Process
-        const updatedTask = await taskService.updateContent({
+        await taskService.updateContent({
           id: parseInt(task_id),
           user_id,
           content,
         });
 
         // Response
-        const response = {
-          task: {
-            id: updatedTask.id,
-            progress: updatedTask.progress,
-            content: updatedTask.content,
-            deadline: updatedTask.deadline,
-            registerd_at: updatedTask.registerd_at,
-            started_at: updatedTask.started_at,
-            finished_at: updatedTask.finished_at,
-          },
-        };
+        const response = { content };
         return res.status(200).json({
           message: "Content Updated",
           data: response,

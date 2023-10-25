@@ -1,26 +1,28 @@
 import { type QueryError } from "mysql2/promise";
 import createError from "http-errors";
-import { type TaskDAO, type TaskDTO } from "../service";
+import { type TaskDAO, type TaskDTO } from "../services";
 
 export const taskRepo: TaskDAO = {
   findById(knex, id) {
     const query = knex("task").where("id", id).first();
 
     return new Promise<TaskDTO>((resolve, reject) => {
-      query.then((task) => {
-        if (!task) return reject(createError(400, "Task Absent"));
+      query
+        .then((task) => {
+          if (!task) throw createError(400, "Task Absent");
 
-        return resolve({
-          id: task.id,
-          user_id: task.user_id,
-          progress: task.progress,
-          content: task.content,
-          deadline: task.deadline,
-          registerd_at: task.registerd_at,
-          started_at: task.started_at,
-          finished_at: task.finished_at,
-        });
-      });
+          return resolve({
+            id: task.id,
+            user_id: task.user_id,
+            progress: task.progress,
+            content: task.content,
+            deadline: task.deadline,
+            registerd_at: task.registerd_at,
+            started_at: task.started_at,
+            finished_at: task.finished_at,
+          });
+        })
+        .catch(reject);
     });
   },
 

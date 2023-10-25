@@ -1,7 +1,7 @@
 import chai, { expect } from "chai";
 import chaiAsPromised from "chai-as-promised";
-import UserDomain from "./user";
 import { HttpError } from "http-errors";
+import UserDomain from "./user";
 
 chai.use(chaiAsPromised);
 

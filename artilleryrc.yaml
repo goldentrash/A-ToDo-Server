@@ -29,24 +29,24 @@ scenarios:
   - flow:
       - post:
           name: Sign In
-          url: /users/{{ user_id }}/token
+          url: /users/{{ user_id }}/access-token
           json:
             password: password
           capture:
-            json: $.data.token
-            as: token
+            json: $.data.access_token
+            as: access_token
       - get:
           name: Get Task List
           url: /tasks?sort=deadline&progress=todo&progress=doing
           headers:
-            Authorization: Bearer {{ token }}
+            Authorization: Bearer {{ access_token }}
 
       - loop:
           - post:
               name: Register New Task
               url: /tasks
               headers:
-                Authorization: Bearer {{ token }}
+                Authorization: Bearer {{ access_token }}
               json:
                 content: test content
                 deadline: "2023-08-25"
@@ -57,17 +57,17 @@ scenarios:
               name: Start Task
               url: /tasks/{{ task_id }}?action=start
               headers:
-                Authorization: Bearer {{ token }}
+                Authorization: Bearer {{ access_token }}
           - put:
               name: Update Task Content
               url: /tasks/{{ task_id }}/content
               headers:
-                Authorization: Bearer {{ token }}
+                Authorization: Bearer {{ access_token }}
               json:
                 content: updated content
           - patch:
               name: Finish Task
               url: /tasks/{{ task_id }}?action=finish
               headers:
-                Authorization: Bearer {{ token }}
+                Authorization: Bearer {{ access_token }}
         count: 2
