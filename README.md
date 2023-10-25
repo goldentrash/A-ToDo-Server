@@ -54,6 +54,31 @@ POST /todos
 }
 ```
 
+### get doing list
+
+- 진행 중인 doing 목록을 요청
+
+#### request
+
+```http
+GET /doings
+```
+
+#### response
+
+```json
+{
+  "message": "Query Accepted",
+  "data": [
+    {
+      "id": 1,
+      "content": "to do what",
+      "deadline": "2000-01-10T15:00:00.000Z"
+    }
+  ]
+}
+```
+
 ### start doing
 
 - todo 시작, doing 생성
