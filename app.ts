@@ -9,7 +9,7 @@ import express, {
 import { genUsersRouter, genTasksRouter } from "./routes";
 import { genUserService, genTaskService } from "./services";
 import { userRepo, taskRepo } from "./repositories";
-import { accessStream, errStream, logStream } from "./streams";
+import { accessStream, rotatingStream } from "./streams";
 import "./schedules";
 
 const app = express();
@@ -17,7 +17,7 @@ app.use(express.json());
 app.use(
   process.env.NODE_ENV === "production"
     ? morgan(
-        `[:date[clf]] "HTTP/:http-version :method :url" :status :res[content-length] ":referrer" ":user-agent"`,
+        `[:date[iso]] "HTTP/:http-version :method :url" :status (:res[content-length] ms) - ":user-agent"`,
         { stream: accessStream }
       )
     : morgan("dev")
@@ -50,8 +50,8 @@ app.use((err: unknown, req: Request, res: Response, _next: NextFunction) => {
     message = "Internal Server Error";
   }
 
-  errStream.write(
-    `${JSON.stringify({
+  rotatingStream.logError(
+    JSON.stringify({
       err: `${status} ${message}`,
       errDetail: status < 500 ? undefined : err,
       request: {
@@ -59,11 +59,13 @@ app.use((err: unknown, req: Request, res: Response, _next: NextFunction) => {
         headers: req.headers,
         body: req.body,
       },
-    })}\n`
+    })
   );
 
   return res.status(status).json({ error: message });
 });
 
 const port = process.env.PORT ? parseInt(process.env.PORT) : 3_000;
-app.listen(port, () => logStream.write(`Server listening on port ${port}\n`));
+app.listen(port, () =>
+  rotatingStream.logInfo(`Server listening on port ${port}`)
+);
