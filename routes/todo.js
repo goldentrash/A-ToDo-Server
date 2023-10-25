@@ -16,6 +16,14 @@ router
         .json({ message: 'Query Accepted', data: await todo.get() });
     })
   )
-  .all(methodNotAllowedHandler(['GET']));
+  .post(
+    contentNegotiator('json'),
+    asyncHandlerWrapper(async (req, res, next) => {
+      const { content, deadline } = req.body;
+      await todo.add(content, deadline);
+      return res.status(201).json({ message: 'todo Created' });
+    })
+  )
+  .all(methodNotAllowedHandler(['GET', 'POST']));
 
 module.exports = router;
