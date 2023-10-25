@@ -6,7 +6,7 @@ echo
 
 echo stop current container:
 docker stop a-todo
-docker wait a-todo
+# docker wait a-todo
 echo
 
 echo run latest server image:
