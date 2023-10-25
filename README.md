@@ -28,3 +28,26 @@ GET /todos
   }
 }
 ```
+
+### add new todo
+
+#### request
+
+```http
+POST /todos
+```
+
+#### parameter
+
+| parameter | 의미         | type                |
+| --------- | ------------ | ------------------- |
+| content   | 할 일의 내용 | string (100자 미만) |
+| deadline  | 마감일       | datetime            |
+
+#### response
+
+```json
+{
+  "message": "todo Created"
+}
+```
