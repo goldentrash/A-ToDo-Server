@@ -1,5 +1,5 @@
 import createError from "http-errors";
-import { pool } from "repository";
+import { knex } from "repository";
 import { UserDomain } from "domain/user";
 import { type UserDAO } from "./type";
 
@@ -7,42 +7,20 @@ export type UserService = ReturnType<typeof genUserService>;
 
 export const genUserService = (userRepo: UserDAO) => ({
   async signIn(id: string, password: string) {
-    const conn = await pool.getConnection();
+    await userRepo.updateAccessTime(knex, id);
 
-    try {
-      await userRepo.updateAccessTime(conn, id);
+    const userDTO = await userRepo.find(knex, id);
+    const user = new UserDomain(userDTO);
 
-      const userDTO = await userRepo.find(conn, id);
-      const user = new UserDomain(userDTO);
-
-      await user.verifyPassword(password);
-      const token = user.genToken();
-      return token;
-    } finally {
-      conn.release();
-    }
+    await user.verifyPassword(password);
+    return user.genToken();
   },
   async signUp(id: string, password: string) {
-    const conn = await pool.getConnection();
-
-    try {
-      const hashed_password = await UserDomain.hashPassword(password);
-      await userRepo.register(conn, { id, hashed_password });
-
-      return;
-    } finally {
-      conn.release();
-    }
+    const hashed_password = await UserDomain.hashPassword(password);
+    return await userRepo.register(knex, { id, hashed_password });
   },
   async updateAccessTime(id: string) {
-    const conn = await pool.getConnection();
-
-    try {
-      userRepo.updateAccessTime(conn, id);
-      return;
-    } finally {
-      conn.release();
-    }
+    return userRepo.updateAccessTime(knex, id);
   },
   verify(authorization: string) {
     const [type, token] = authorization.split(" ");

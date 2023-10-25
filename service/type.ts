@@ -1,4 +1,4 @@
-import { type PoolConnection } from "mysql2/promise";
+import { type Knex } from "knex";
 
 export type UserDTO = {
   id: string;
@@ -6,13 +6,13 @@ export type UserDTO = {
 };
 
 export type UserDAO = {
-  find(conn: PoolConnection, id: UserDTO["id"]): Promise<UserDTO>;
-  updateAccessTime(conn: PoolConnection, id: UserDTO["id"]): Promise<void>;
-  register(conn: PoolConnection, user: UserDTO): Promise<void>;
+  find(knex: Knex, id: UserDTO["id"]): Promise<UserDTO>;
+  updateAccessTime(knex: Knex, id: UserDTO["id"]): Promise<void>;
+  register(knex: Knex, user: UserDTO): Promise<void>;
 };
 
 export type TaskDTO = {
-  id: string;
+  id: number;
   user_id: string;
   progress: "todo" | "doing" | "done";
   content: string;
@@ -26,21 +26,21 @@ export type SearchOption = {
 };
 
 export type TaskDAO = {
-  find(conn: PoolConnection, id: TaskDTO["id"]): Promise<TaskDTO>;
+  find(kne: Knex, id: TaskDTO["id"]): Promise<TaskDTO>;
   findByUser(
-    conn: PoolConnection,
+    kne: Knex,
     user_id: TaskDTO["user_id"],
     searchOption: SearchOption
   ): Promise<TaskDTO[]>;
   register(
-    conn: PoolConnection,
+    kne: Knex,
     {
       user_id,
       content,
       deadline,
     }: Pick<TaskDTO, "user_id" | "content" | "deadline">
   ): Promise<TaskDTO["id"]>;
-  start(conn: PoolConnection, taskDTO: TaskDTO): Promise<void>;
-  finish(conn: PoolConnection, taskDTO: TaskDTO): Promise<void>;
-  setMemo(conn: PoolConnection, taskDTO: TaskDTO): Promise<void>;
+  start(kne: Knex, taskDTO: TaskDTO): Promise<void>;
+  finish(kne: Knex, taskDTO: TaskDTO): Promise<void>;
+  setMemo(kne: Knex, taskDTO: TaskDTO): Promise<void>;
 };
