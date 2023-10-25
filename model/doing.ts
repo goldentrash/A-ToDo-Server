@@ -1,7 +1,13 @@
-const { pool, createDatabaseError } = require('./index');
+import { pool, createDatabaseError } from 'model/index';
 
-const doing = {
-  get() {
+type Doing = {
+  id: number;
+  content: string;
+  memo: string;
+  deadline: string;
+};
+export default {
+  getAll() {
     const sql = `
     SELECT
       id,
@@ -23,29 +29,29 @@ const doing = {
     ORDER BY
       deadline;`;
 
-    return new Promise((resolve, reject) => {
-      pool.query(sql, (err, results, fields) => {
+    return new Promise<Doing[]>((resolve, reject) => {
+      pool.query(sql, (err, results, _fields) => {
         if (err) return reject(createDatabaseError(err));
 
         return resolve(results);
       });
     });
   },
-  add(id) {
+  add(id: string) {
     const sql = `INSERT INTO doing(id) VALUES(?);`;
 
-    return new Promise((resolve, reject) => {
-      pool.query(sql, [id], (err, results, fields) => {
+    return new Promise<void>((resolve, reject) => {
+      pool.query(sql, [id], (err, _results, _fields) => {
         if (err) return reject(createDatabaseError(err));
 
         return resolve();
       });
     });
   },
-  updateMemo(id, memo) {
+  updateMemo(id: string, memo: string) {
     const sql = `UPDATE doing SET memo = ? WHERE id = ?;`;
 
-    return new Promise((resolve, reject) => {
+    return new Promise<void>((resolve, reject) => {
       pool.query(sql, [memo, id], (err, results, fields) => {
         if (err) return reject(createDatabaseError(err));
 
@@ -54,5 +60,3 @@ const doing = {
     });
   },
 };
-
-module.exports = doing;
