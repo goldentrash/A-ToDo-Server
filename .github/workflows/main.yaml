@@ -24,7 +24,6 @@ jobs:
           echo "DB_ROOT_PASSWORD=root" >> .env
           echo "DEBUG=${{ vars.DEBUG }}" >> .env
           echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
-          echo "" >> .env
       - run: sudo service mysql start
       - run: mysql --user=root --password=root --execute="CREATE DATABASE a_todo CHARACTER SET utf8;"
       - run: yarn db:migrate
@@ -39,5 +38,4 @@ jobs:
           echo "DB_HOST=${{ secrets.DB_HOST }}" >> .env
           echo "DB_USER=${{ secrets.DB_USER }}" >> .env
           echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
-          echo "" >> .env
       - run: yarn build
