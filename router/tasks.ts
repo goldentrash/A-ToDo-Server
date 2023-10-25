@@ -1,231 +1,174 @@
 import express from "express";
 import createError from "http-errors";
-import { type QueryError } from "mysql2";
 import {
   asyncHandlerWrapper,
   genContentNegotiator,
   genMethodNotAllowedHandler,
-  userAuthenticator,
 } from "router/helper";
 import {
-  pool,
-  userModel,
-  taskModel,
-  type Task,
-  type Todo,
-  type Doing,
-  type Done,
-} from "model";
+  type TaskDTO,
+  type TaskService,
+  type UserService,
+  type SearchOption,
+} from "service";
 
-export const tasksRouter = express.Router();
-tasksRouter.use(userAuthenticator);
+export const genTasksRouter = (
+  taskService: TaskService,
+  userService: UserService
+) => {
+  const tasksRouter = express.Router();
 
-tasksRouter
-  .route("/:task_id/memo")
-  // update memo
-  .put(
-    genContentNegotiator(["json"]),
-    asyncHandlerWrapper(async (req, res, next) => {
-      const connection = await pool.getConnection();
-      await connection.beginTransaction();
+  tasksRouter
+    .route("/:task_id/memo")
+    // update memo
+    .put(
+      genContentNegotiator(["json"]),
+      asyncHandlerWrapper(async (req, res, next) => {
+        const authorization = req.get("Authorization");
+        if (!authorization) return next(createError(401, "Not Authorized"));
 
-      try {
+        const { user_id } = userService.verify(authorization);
+        await userService.updateAccessTime(user_id);
+
         const { task_id } = req.params;
-        const { user_id } = res.locals;
         const { memo } = req.body;
-        if (!memo) throw createError(400, "Property Absent");
-        await taskModel
-          .setMemo(connection, task_id, memo)
-          .catch((err: QueryError) => {
-            if (err.code === "ER_DATA_TOO_LONG")
-              throw createError(400, "Property Too Long");
+        if (!memo) return next(createError(400, "Property Absent"));
 
-            if (err.code === "ER_TRUNCATED_WRONG_VALUE")
-              throw createError(400, "Task ID Invalid");
-
-            throw err;
-          });
-
-        const [rows] = await taskModel.find(connection, task_id);
-        if (rows.length === 0) throw createError(400, "Task Absent");
-
-        connection.commit();
-
-        userModel.updateAccessTime(connection, user_id);
+        const updatedTask = await taskService.updateMemo(
+          task_id,
+          user_id,
+          memo
+        );
         return res.status(200).json({
-          message: "memo updated",
-          data: { task: rows[0] },
+          message: "Memo Updated",
+          data: { task: updatedTask },
         });
-      } catch (err) {
-        connection.rollback();
-        return next(err);
-      } finally {
-        connection.release();
-      }
-    })
-  )
-  .all(genMethodNotAllowedHandler(["PUT"]));
+      })
+    )
+    .all(genMethodNotAllowedHandler(["PUT"]));
 
-tasksRouter
-  .route("/:task_id")
-  // progress task
-  .patch(
-    genContentNegotiator(["json"]),
-    asyncHandlerWrapper(async (req, res, next) => {
-      const connection = await pool.getConnection();
-      await connection.beginTransaction();
+  tasksRouter
+    .route("/:task_id")
+    // progress task
+    .patch(
+      genContentNegotiator(["json"]),
+      asyncHandlerWrapper(async (req, res, next) => {
+        const authorization = req.get("Authorization");
+        if (!authorization) return next(createError(401, "Not Authorized"));
 
-      try {
+        const { user_id } = userService.verify(authorization);
+        await userService.updateAccessTime(user_id);
+
         const { task_id } = req.params;
-        const { user_id } = res.locals;
-        const { action } = req.body;
-        if (!action) throw createError(400, "Property Absent");
-        if (action === "start")
-          await taskModel
-            .start(connection, task_id)
-            .catch((err: QueryError) => {
-              if (err.code === "ER_DUP_ENTRY")
-                throw createError(400, "User Busy");
+        const { action }: { action?: "start" | "finish" } = req.body;
+        if (!action) return next(createError(400, "Property Absent"));
 
-              if (err.code === "ER_TRUNCATED_WRONG_VALUE")
-                throw createError(400, "Task ID Invalid");
-
-              throw err;
+        switch (action) {
+          case "start": {
+            const startedTask = await taskService.startTask(task_id, user_id);
+            return res.status(200).json({
+              message: "Task Started",
+              data: { task: startedTask },
             });
-        else if (action === "finish")
-          await taskModel
-            .finish(connection, task_id)
-            .catch((err: QueryError) => {
-              if (err.code === "ER_CHECK_CONSTRAINT_VIOLATED")
-                throw createError(400, "Task Unstarted");
-
-              if (err.code === "ER_TRUNCATED_WRONG_VALUE")
-                throw createError(400, "Task ID Invalid");
-
-              throw err;
+          }
+          case "finish": {
+            const finishedTask = await taskService.finishTask(task_id, user_id);
+            return res.status(200).json({
+              message: "Task Finished",
+              data: { task: finishedTask },
             });
-        else throw createError(400, "Property Invalid");
+          }
+          default:
+            return ((_action: never) =>
+              next(createError(400, "Property Invalid")))(action);
+        }
+      })
+    )
+    .all(genMethodNotAllowedHandler(["PATCH"]));
 
-        const [rows] = await taskModel.find(connection, task_id);
-        if (rows.length === 0) throw createError(400, "Task Absent");
+  tasksRouter
+    .route("/")
+    // get tasks
+    .get(
+      genContentNegotiator(["json"]),
+      asyncHandlerWrapper(async (req, res, next) => {
+        const authorization = req.get("Authorization");
+        if (!authorization) return next(createError(401, "Not Authorized"));
 
-        connection.commit();
+        const { user_id } = userService.verify(authorization);
+        await userService.updateAccessTime(user_id);
 
-        userModel.updateAccessTime(connection, user_id);
-        return res.status(200).json({
-          message: action === "start" ? "task started" : "task finished",
-          data: { task: rows[0] },
-        });
-      } catch (err) {
-        connection.rollback();
-        return next(err);
-      } finally {
-        connection.release();
-      }
-    })
-  )
-  .all(genMethodNotAllowedHandler(["PATCH"]));
+        const option: SearchOption = { sort: null, filter: { progress: null } };
+        const { sort, progress } = req.query;
+        if (sort === "deadline") option.sort = "deadline";
+        if (typeof progress === "string") option.filter.progress = [progress];
+        if (Array.isArray(progress))
+          option.filter.progress = progress as string[];
 
-tasksRouter
-  .route("/")
-  // get tasks
-  .get(
-    genContentNegotiator(["json"]),
-    asyncHandlerWrapper(async (_req, res, next) => {
-      const connection = await pool.getConnection();
-
-      try {
-        const { user_id } = res.locals;
-
-        const [rows] = await taskModel.findByUser(connection, user_id);
-        const [todoList, doing, doneList] = rows.reduce<
-          [Todo[], Doing | null, Done[]]
+        const taskArr = await taskService.getTasksByUser(user_id, option);
+        const [todoList, doing, doneList] = taskArr.reduce<
+          [TaskDTO[], TaskDTO | null, TaskDTO[]]
         >(
-          (accumulator, rowDataPacket) => {
-            const task = rowDataPacket as Task;
-            const [todoList, doing, doneList] = accumulator;
-
-            switch (task.progress) {
+          ([todoList, doing, doneList], curr) => {
+            const { progress } = curr;
+            switch (progress) {
               case "todo":
-                return [[task, ...todoList], doing, doneList];
+                todoList.push(curr);
+                break;
               case "doing":
-                return [todoList, task, doneList];
+                doing = curr;
+                break;
               case "done":
-                return [todoList, doing, [task, ...doneList]];
+                doneList.push(curr);
+                break;
               default:
-                return ((_: never): never => {
+                ((_progress: never) => {
                   throw Error("unreachable case");
-                })(task);
+                })(progress);
             }
+
+            return [todoList, doing, doneList];
           },
           [[], null, []]
         );
-
-        // XXX filter
-        // const { progress } = req.query;
-
-        userModel.updateAccessTime(connection, user_id);
         return res.status(200).json({
-          message: "query accepted",
+          message: "Query Accepted",
           data: {
-            // ...(todoList && { todoList }),
-            // ...(doing && { doing }),
-            // ...(doneList && { doneList }),
             todoList,
             doing,
             doneList,
           },
         });
-      } catch (err) {
-        return next(err);
-      } finally {
-        connection.release();
-      }
-    })
-  )
-  // register task
-  .post(
-    genContentNegotiator(["json"]),
-    asyncHandlerWrapper(async (req, res, next) => {
-      const connection = await pool.getConnection();
-      await connection.beginTransaction();
+      })
+    )
+    // register task
+    .post(
+      genContentNegotiator(["json"]),
+      asyncHandlerWrapper(async (req, res, next) => {
+        const authorization = req.get("Authorization");
+        if (!authorization) return next(createError(401, "Not Authorized"));
 
-      try {
-        const { user_id } = res.locals;
+        const { user_id } = userService.verify(authorization);
+        await userService.updateAccessTime(user_id);
+
         const { content, deadline } = req.body;
-        if (!content || !deadline) throw createError(400, "Property Absent");
+        if (!content || !deadline)
+          return next(createError(400, "Property Absent"));
         if (typeof content !== "string" || typeof deadline !== "string")
-          throw createError(400, "Property Invalid");
+          return next(createError(400, "Property Invalid"));
 
-        const [row] = await taskModel
-          .register(connection, { user_id, content, deadline })
-          .catch((err: QueryError) => {
-            if (err.code === "ER_TRUNCATED_WRONG_VALUE")
-              throw createError(400, "Property Invalid");
-
-            if (err.code === "ER_DATA_TOO_LONG")
-              throw createError(400, "Content Too Long");
-
-            throw err;
-          });
-        const [rows] = await taskModel.find(
-          connection,
-          row.insertId.toString()
+        const registeredTask = await taskService.register(
+          user_id,
+          content,
+          deadline
         );
-
-        connection.commit();
-
-        userModel.updateAccessTime(connection, user_id);
         return res.status(201).json({
-          message: "task created",
-          data: { task: rows[0] },
+          message: "Task Created",
+          data: { task: registeredTask },
         });
-      } catch (err) {
-        connection.rollback();
-        return next(err);
-      } finally {
-        connection.release();
-      }
-    })
-  )
-  .all(genMethodNotAllowedHandler(["GET", "POST"]));
+      })
+    )
+    .all(genMethodNotAllowedHandler(["GET", "POST"]));
+
+  return tasksRouter;
+};

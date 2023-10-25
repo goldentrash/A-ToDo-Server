@@ -6,13 +6,15 @@ import express, {
   type Response,
   type NextFunction,
 } from "express";
-import { usersRouter, tasksRouter } from "router";
+import { genUsersRouter, genTasksRouter } from "router";
+import { genUserService, genTaskService } from "service";
+import { userRepo, taskRepo } from "repository";
+
+const app = express();
 
 const errStream = debug("a-todo:error");
 const logStream = debug("a-todo:log");
 logStream.log = console.log.bind(console);
-
-const app = express();
 
 app.use(
   logger("dev", {
@@ -20,6 +22,12 @@ app.use(
   })
 );
 app.use(express.json());
+
+// inject dependencies
+const userService = genUserService(userRepo);
+const taskService = genTaskService(taskRepo);
+const usersRouter = genUsersRouter(userService);
+const tasksRouter = genTasksRouter(taskService, userService);
 
 app.use("/users", usersRouter);
 app.use("/tasks", tasksRouter);
@@ -40,19 +48,17 @@ app.use((err: unknown, req: Request, res: Response, _next: NextFunction) => {
   } else {
     status = 500;
     message = "Internal Server Error";
-
-    errStream(err);
   }
 
-  if (status >= 500)
-    errStream("%O", {
-      err: `${status} ${message}`,
-      request: {
-        startLine: `${req.method} ${req.originalUrl} ${req.protocol}`,
-        headers: req.headers,
-        body: req.body,
-      },
-    });
+  errStream("%O", {
+    err: `${status} ${message}`,
+    ...(status >= 500 && { errDetail: err }),
+    request: {
+      startLine: `${req.method} ${req.originalUrl} ${req.protocol}`,
+      headers: req.headers,
+      body: req.body,
+    },
+  });
 
   return res.status(status).json({ error: message });
 });

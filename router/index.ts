@@ -1,2 +1,2 @@
-export { usersRouter } from "./users";
-export { tasksRouter } from "./tasks";
+export { genUsersRouter } from "./users";
+export { genTasksRouter } from "./tasks";
