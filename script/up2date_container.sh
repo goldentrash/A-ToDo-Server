@@ -11,5 +11,6 @@ echo
 
 echo run latest server image:
 docker run --detach --publish 3000:3000 --rm \
+  --mount type=bind,source="$(pwd)"/logs,destination=/app/logs \
   --name a-todo goldentrash/a-todo-server
 echo
