@@ -5,7 +5,10 @@ const doing = {
     const sql = `
     SELECT id, content, deadline 
     FROM doing 
-      INNER JOIN todo USING(id);`;
+      INNER JOIN todo USING(id)
+    WHERE NOT EXISTS(
+      SELECT id FROM done WHERE doing.id = done.id
+    );`;
 
     return new Promise((resolve, reject) => {
       pool.query(sql, (err, results, fields) => {
