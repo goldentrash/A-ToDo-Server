@@ -2,19 +2,19 @@
 
 지금 하는 일에 집중할 수 있는 todo App
 
-## REST API
+# REST API
 
-### get todo list
+## get todo list
 
-- 대기 중인 todo 목록을 요청
+todo 목록 요청
 
-#### request
+### request
 
 ```http
 GET /todos
 ```
 
-#### response
+### response
 
 ```json
 {
@@ -31,22 +31,22 @@ GET /todos
 }
 ```
 
-### add new todo
+## add new todo
 
-- 새 todo 등록
+todo 등록
 
-#### request
+### request
 
 ```http
 POST /todos
 ```
 
-| parameter | 의미         | type                |
-| --------- | ------------ | ------------------- |
-| content   | 할 일의 내용 | string (100자 미만) |
-| deadline  | 마감일       | datetime            |
+| parameter | type | 의미   | data type           |
+| --------- | ---- | ------ | ------------------- |
+| content   | body | 내용   | string (100자 미만) |
+| deadline  | body | 마감일 | datetime            |
 
-#### response
+### response
 
 ```json
 {
@@ -54,17 +54,17 @@ POST /todos
 }
 ```
 
-### get doing list
+## get doing list
 
-- 진행 중인 doing 목록을 요청
+doing 목록 요청
 
-#### request
+### request
 
 ```http
 GET /doings
 ```
 
-#### response
+### response
 
 ```json
 {
@@ -73,27 +73,28 @@ GET /doings
     {
       "id": 1,
       "content": "to do what",
+      "memo": "",
       "deadline": "2000-01-10T15:00:00.000Z"
     }
   ]
 }
 ```
 
-### start todo
+## start todo
 
-- todo 시작, doing 생성
+todo 시작, doing 생성
 
-#### request
+### request
 
 ```http
 POST /doings
 ```
 
-| parameter | 의미             | type         |
-| --------- | ---------------- | ------------ |
-| id        | 시작할 todo의 id | number (int) |
+| parameter | type | 의미             | data type    |
+| --------- | ---- | ---------------- | ------------ |
+| id        | body | 시작할 todo의 id | number (int) |
 
-#### response
+### response
 
 ```json
 {
@@ -101,22 +102,44 @@ POST /doings
 }
 ```
 
-### finish doing
+## update memo
 
-- doing 종료, done 생성
+memo 수정
 
-#### request
+### request
+
+```http
+PUT /doings/:id/memos
+```
+
+| parameter | type | 의미              | data type           |
+| --------- | ---- | ----------------- | ------------------- |
+| id        | path | 종료할 doing의 id | number (int)        |
+| memo      | body | 메모              | string (200자 미만) |
+
+### response
+
+```json
+{
+  "message": "memo Updated"
+}
+```
+
+## finish doing
+
+doing 종료, done 생성
+
+### request
 
 ```http
 POST /dones
 ```
 
-| parameter | 의미              | type                |
-| --------- | ----------------- | ------------------- |
-| id        | 종료할 doing의 id | number (int)        |
-| memo      | 완료 메모         | string (200자 미만) |
+| parameter | type | 의미              | data type    |
+| --------- | ---- | ----------------- | ------------ |
+| id        | body | 종료할 doing의 id | number (int) |
 
-#### response
+### response
 
 ```json
 {

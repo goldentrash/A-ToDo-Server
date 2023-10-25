@@ -11,8 +11,8 @@ router
   .post(
     contentNegotiator('json'),
     asyncHandlerWrapper(async (req, res, next) => {
-      const { id, memo } = req.body;
-      await done.add(id, memo);
+      const { id } = req.body;
+      await done.add(id);
       return res.status(201).json({ message: 'done Created' });
     })
   )
