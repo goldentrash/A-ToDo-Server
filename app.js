@@ -11,6 +11,7 @@ app.use(express.json());
 
 app.use('/todos', require('./routes/todo'));
 app.use('/doings', require('./routes/doing'));
+app.use('/dones', require('./routes/done'));
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
