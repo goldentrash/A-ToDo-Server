@@ -2,7 +2,7 @@
   "info": {
     "_postman_id": "c0a49f23-f5f3-484c-8726-1412d70d5fd9",
     "name": "functionality test",
-    "description": "test basic functionality by scenario\n\n### scenario\n\n1. sign up a user\n2. sign in as that user\n3. get the uesr's tasks\n4. register a new task\n5. start the task\n6. update the task's memo\n7. finish the task",
+    "description": "test basic functionality by scenario\n\n### scenario\n\n1. sign up a user\n    \n2. sign in as that user\n    \n3. register a new task\n    \n4. get the uesr's tasks\n    \n5. start the task\n    \n6. update the task's memo\n    \n7. finish the task",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
     "_exporter_id": "12435323"
   },
@@ -105,88 +105,6 @@
       "response": []
     },
     {
-      "name": "Get todo list and doing",
-      "event": [
-        {
-          "listen": "test",
-          "script": {
-            "exec": [
-              "var Ajv = require(\"ajv\");",
-              "var ajv = new Ajv();",
-              "",
-              "var code = pm.response.code;",
-              "var { message, data } = pm.response.json();",
-              "",
-              "pm.test(\"Status check\", () => {",
-              "  pm.expect(code, \"status code must be 200\").to.equal(200);",
-              "  pm.expect(message, 'response message must be \"Query Accepted\"').to.equal(",
-              "    \"Query Accepted\"",
-              "  );",
-              "});",
-              "",
-              "pm.test(\"Data validation check\", () => {",
-              "  const taskListSchema = {",
-              "    type: \"array\",",
-              "    items: {",
-              "      type: \"object\",",
-              "      properties: {",
-              "        id: { type: \"number\" },",
-              "        user_id: { type: \"string\" },",
-              "        progress: { const: \"todo\" },",
-              "        content: { type: \"string\" },",
-              "        memo: { type: \"string\" },",
-              "        deadline: { type: \"string\" },",
-              "      },",
-              "      required: [\"id\", \"user_id\", \"progress\", \"content\", \"memo\", \"deadline\"],",
-              "    },",
-              "  };",
-              "  pm.expect(",
-              "    ajv.validate(taskListSchema, data.taskList),",
-              "    \"response body must have task list\"",
-              "  ).to.be.true;",
-              "});",
-              ""
-            ],
-            "type": "text/javascript"
-          }
-        }
-      ],
-      "request": {
-        "auth": {
-          "type": "bearer",
-          "bearer": [
-            {
-              "key": "token",
-              "value": "{{token}}",
-              "type": "string"
-            }
-          ]
-        },
-        "method": "GET",
-        "header": [],
-        "url": {
-          "raw": "{{base_url}}/tasks?progress=todo&progress=doing&sort=deadline",
-          "host": ["{{base_url}}"],
-          "path": ["tasks"],
-          "query": [
-            {
-              "key": "progress",
-              "value": "todo"
-            },
-            {
-              "key": "progress",
-              "value": "doing"
-            },
-            {
-              "key": "sort",
-              "value": "deadline"
-            }
-          ]
-        }
-      },
-      "response": []
-    },
-    {
       "name": "Register task",
       "event": [
         {
@@ -257,6 +175,101 @@
           "raw": "{{base_url}}/tasks",
           "host": ["{{base_url}}"],
           "path": ["tasks"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get todo list and doing",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "var Ajv = require(\"ajv\");",
+              "var ajv = new Ajv();",
+              "",
+              "var code = pm.response.code;",
+              "var { message, data } = pm.response.json();",
+              "",
+              "pm.test(\"Status check\", () => {",
+              "  pm.expect(code, \"status code must be 200\").to.equal(200);",
+              "  pm.expect(message, 'response message must be \"Query Accepted\"').to.equal(",
+              "    \"Query Accepted\"",
+              "  );",
+              "});",
+              "",
+              "pm.test(\"Data validation check\", () => {",
+              "  const taskListSchema = {",
+              "    type: \"array\",",
+              "    items: {",
+              "      type: \"object\",",
+              "      properties: {",
+              "        id: { type: \"number\" },",
+              "        user_id: { type: \"string\" },",
+              "        progress: { const: \"todo\" },",
+              "        content: { type: \"string\" },",
+              "        memo: { type: \"string\" },",
+              "        deadline: { type: \"string\" },",
+              "        registerd_at: { type: \"string\" },",
+              "        started_at: { type: [\"string\", \"null\"] },",
+              "        finished_at: { type: [\"string\", \"null\"] },",
+              "      },",
+              "      required: [",
+              "        \"id\",",
+              "        \"user_id\",",
+              "        \"progress\",",
+              "        \"content\",",
+              "        \"memo\",",
+              "        \"deadline\",",
+              "        \"registerd_at\",",
+              "        \"started_at\",",
+              "        \"finished_at\",",
+              "      ],",
+              "    },",
+              "  };",
+              "  pm.expect(",
+              "    ajv.validate(taskListSchema, data.taskList),",
+              "    \"response body must have task list\"",
+              "  ).to.be.true;",
+              "});",
+              ""
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/tasks?progress=todo&progress=doing&sort=deadline",
+          "host": ["{{base_url}}"],
+          "path": ["tasks"],
+          "query": [
+            {
+              "key": "progress",
+              "value": "todo"
+            },
+            {
+              "key": "progress",
+              "value": "doing"
+            },
+            {
+              "key": "sort",
+              "value": "deadline"
+            }
+          ]
         }
       },
       "response": []

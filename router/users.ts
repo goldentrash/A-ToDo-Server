@@ -4,7 +4,7 @@ import {
   asyncHandlerWrapper,
   genContentNegotiator,
   genMethodNotAllowedHandler,
-} from "router/helper";
+} from "./helper";
 import { type UserService } from "service";
 
 export const genUsersRouter = (userService: UserService) => {
