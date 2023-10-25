@@ -1,15 +1,15 @@
 # A-ToDo-Server
 
-지금 하는 일에 집중할 수 있는 todo App
+지금 하는 일에 집중할 수 있는 todo App ([Client](https://github.com/goldentrash/A-ToDo-Client))
 
 ## REST API
 
-visit [Postman workspace](https://www.postman.com/whitepianow/workspace/a-todo)
-
-## service
-
-[whitepiano-codeserver.pe.kr](http://whitepiano-codeserver.pe.kr/)
+visit [Postman Workspace](https://www.postman.com/whitepianow/workspace/a-todo)
 
 ## version comments
 
 see [wiki](https://github.com/goldentrash/A-ToDo-Server/wiki)
+
+## service
+
+[whitepiano-codeserver.pe.kr](http://whitepiano-codeserver.pe.kr/)

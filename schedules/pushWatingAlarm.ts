@@ -14,7 +14,9 @@ const query = knex("task")
   .count("*", { as: "num_of_todo" });
 
 rotatingStream.logInfo(
-  `Schedule pushWatingAlarm at every ${SCHEDULE_PUSH_WATING_ALARM}`
+  `Schedule pushWatingAlarm at every ${JSON.stringify(
+    SCHEDULE_PUSH_WATING_ALARM
+  )}`
 );
 scheduleJob(SCHEDULE_PUSH_WATING_ALARM, async () => {
   const targetList = (await query) as unknown as {
