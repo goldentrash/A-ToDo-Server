@@ -28,6 +28,7 @@ jobs:
           echo "DB_ROOT_PASSWORD=root" >> .env
           echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
           echo "SALT_ROUND=${{ secrets.SALT_ROUND }}" >> .env
+          echo "EXPO_ACCESS_TOKEN=${{ secrets.EXPO_ACCESS_TOKEN }}" >> .env
 
       - name: Set up DB
         run: |
@@ -52,6 +53,7 @@ jobs:
           echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
           echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
           echo "SALT_ROUND=${{ secrets.SALT_ROUND }}" >> .env
+          echo "EXPO_ACCESS_TOKEN=${{ secrets.EXPO_ACCESS_TOKEN }}" >> .env
 
       - name: Build docker image
         run: yarn build
