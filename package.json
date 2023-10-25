@@ -3,13 +3,16 @@
   "version": "0.1.0",
   "private": true,
   "engines": {
-    "node": "^18.12.0"
+    "node": ">=18.16.1",
+    "yarn": ">=1.22.19"
   },
   "repository": "https://github.com/goldentrash/A-ToDo-Server.git",
   "author": "goldentrash <startoflateness@gmail.com>",
   "scripts": {
     "start": "concurrently \"tsc --watch\" \"tsc-alias --watch\" \"node --watch ./bin/www\"",
-    "build": "tsc && tsc-alias"
+    "test": "echo test",
+    "build": "tsc && tsc-alias",
+    "postbuild": "yarn test && docker build --tag goldentrash/a-todo-server:latest . && docker push goldentrash/a-todo-server"
   },
   "dependencies": {
     "debug": "~2.6.9",
