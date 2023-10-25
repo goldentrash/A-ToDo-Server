@@ -1,6 +1,20 @@
 const { pool, createDatabaseError } = require('./index');
 
 const doing = {
+  get() {
+    const sql = `
+    SELECT id, content, deadline 
+    FROM doing 
+      INNER JOIN todo USING(id);`;
+
+    return new Promise((resolve, reject) => {
+      pool.query(sql, (err, results, fields) => {
+        if (err) return reject(createDatabaseError(err));
+
+        return resolve(results);
+      });
+    });
+  },
   add(id) {
     const sql = `INSERT INTO doing(id) VALUES(?);`;
 

@@ -8,6 +8,14 @@ const doing = require('../model/doing');
 
 router
   .route('/')
+  .get(
+    contentNegotiator('json'),
+    asyncHandlerWrapper(async (req, res, next) => {
+      return res
+        .status(200)
+        .json({ message: 'Query Accepted', data: await doing.get() });
+    })
+  )
   .post(
     contentNegotiator('json'),
     asyncHandlerWrapper(async (req, res, next) => {
@@ -16,6 +24,6 @@ router
       return res.status(201).json({ message: 'doing Created' });
     })
   )
-  .all(methodNotAllowedHandler(['POST']));
+  .all(methodNotAllowedHandler(['GET', 'POST']));
 
 module.exports = router;
