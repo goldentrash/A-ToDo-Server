@@ -1,23 +1,23 @@
-import express from 'express';
+import express from "express";
 import {
   asyncHandlerWrapper,
   genContentNegotiator,
   genMethodNotAllowedHandler,
-} from 'routes/index';
-import done from 'model/done';
+} from "routes/index";
+import done from "model/done";
 
 const router = express.Router();
 
 router
-  .route('/')
+  .route("/")
   .post(
-    genContentNegotiator(['json']),
+    genContentNegotiator(["json"]),
     asyncHandlerWrapper(async (req, res, _next) => {
       const { id } = req.body;
       await done.add(id);
-      return res.status(201).json({ message: 'done Created' });
+      return res.status(201).json({ message: "done Created" });
     })
   )
-  .all(genMethodNotAllowedHandler(['POST']));
+  .all(genMethodNotAllowedHandler(["POST"]));
 
 export default router;
