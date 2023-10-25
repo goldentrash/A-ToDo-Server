@@ -1,7 +1,7 @@
 #! /bin/sh
 
 # output path
-CSV=./artillery/id.csv
+CSV=./.artillery/id.csv
 
 # truncate output
 echo truncate $CSV

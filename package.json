@@ -11,7 +11,9 @@
   "scripts": {
     "prepare": "husky install",
     "start": "concurrently \"tsc --watch\" \"tsc-alias --watch\" \"node --watch ./bin/www\"",
-    "profile": "script/profile.sh",
+    "profile": "script/profile.sh doctor",
+    "profile:io": "script/profile.sh bubbleprof",
+    "profile:cpu": "script/profile.sh flame",
     "test": "script/test_e2e.sh",
     "db:migrate": "knex migrate:latest",
     "db:rollback": "knex migrate:rollback",

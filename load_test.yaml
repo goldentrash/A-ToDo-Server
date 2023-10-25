@@ -2,15 +2,15 @@ config:
   target: "http://127.0.0.1:3000"
   phases:
     - name: warm up
-      duration: 60
+      duration: 180
       arrivalRate: 1
-      rampTo: 5
-    - name: peak load
+      rampTo: 2
+    - name: peak to load
       duration: 120
-      arrivalRate: 5
+      arrivalRate: 2
     - name: cool down
-      duration: 60
-      arrivalRate: 5
+      duration: 180
+      arrivalRate: 2
       rampTo: 1
   payload:
     path: ./.artillery/id.csv
@@ -81,8 +81,8 @@ scenarios:
                   json:
                     action: finish
               - think: 1
-            count: 5
-          - think: 5
+            count: 2
+          - think: 3
             # loop back to get tasks
-        count: 3
+        count: 2
         # loop back to sign in
