@@ -79,7 +79,7 @@ GET /doings
 }
 ```
 
-### start doing
+### start todo
 
 - todo 시작, doing 생성
 
@@ -98,5 +98,28 @@ POST /doings
 ```json
 {
   "message": "doing Created"
+}
+```
+
+### finish doing
+
+- doing 종료, done 생성
+
+#### request
+
+```http
+POST /dones
+```
+
+| parameter | 의미              | type                |
+| --------- | ----------------- | ------------------- |
+| id        | 종료할 doing의 id | number (int)        |
+| memo      | 완료 메모         | string (200자 미만) |
+
+#### response
+
+```json
+{
+  "message": "done Created"
 }
 ```
