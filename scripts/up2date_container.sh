@@ -10,7 +10,10 @@ docker stop a-todo
 echo
 
 echo run latest server image:
-docker run --detach --publish 3000:3000 --user node --rm \
+docker run --detach --rm \
+  --user node \
+  --publish 3000:3000 \
   --mount type=bind,source="$(pwd)"/logs,destination=/app/logs \
-  --name a-todo goldentrash/a-todo-server
+  --name a-todo \
+  goldentrash/a-todo-server
 echo

@@ -10,12 +10,13 @@ import { genUsersRouter, genTasksRouter } from "./routes";
 import { genUserService, genTaskService } from "./services";
 import { userRepo, taskRepo } from "./repositories";
 import { accessStream, rotatingStream } from "./streams";
+import { NODE_ENV, PORT } from "./constants";
 import "./schedules";
 
 const app = express();
 app.use(express.json());
 app.use(
-  process.env.NODE_ENV === "production"
+  NODE_ENV === "production"
     ? morgan(
         `[:date[iso]] "HTTP/:http-version :method :url" :status (:res[content-length] ms) - ":user-agent"`,
         { stream: accessStream }
@@ -65,7 +66,6 @@ app.use((err: unknown, req: Request, res: Response, _next: NextFunction) => {
   return res.status(status).json({ error: message });
 });
 
-const port = process.env.PORT ? parseInt(process.env.PORT) : 3_000;
-app.listen(port, () =>
-  rotatingStream.logInfo(`Server listening on port ${port}`)
+app.listen(PORT, () =>
+  rotatingStream.logInfo(`Server listening on port ${PORT}`)
 );

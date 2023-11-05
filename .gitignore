@@ -1,8 +1,12 @@
 # typescript output
 dist
 
-# report
+# profile
 .clinic
+*.csv
+
+# vscode
+.vscode
 
 # macOS
 .DS_Store
