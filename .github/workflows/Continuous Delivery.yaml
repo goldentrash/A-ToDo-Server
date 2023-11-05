@@ -6,7 +6,7 @@ on:
       - master
 
 jobs:
-  Continuous_Delivery:
+  Test:
     runs-on: ubuntu-22.04
 
     steps:
@@ -16,28 +16,51 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: 18
+          node-version: 18.12.1
           cache: yarn
 
       - name: Install dependencies
-        run: yarn --frozen-lockfile
+        run: yarn
 
-      - name: Set up TEST env
+      - name: Set up env
         run: |
           echo "NODE_ENV=production" > .env
-          echo "DB_ROOT_PASSWORD=root" >> .env
-          echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
-          echo "SALT_ROUND=${{ secrets.SALT_ROUND }}" >> .env
+          echo "PORT=${{ vars.PORT }}" >> .env
           echo "EXPO_ACCESS_TOKEN=${{ secrets.EXPO_ACCESS_TOKEN }}" >> .env
+          echo "DB_HOST=127.0.0.1" >> .env
+          echo "DB_PORT=3306" >> .env
+          echo "DB_USER=root" >> .env
+          echo "DB_PASSWORD=root" >> .env
+          echo "DB_NAME=${{ vars.DB_NAME }}" >> .env
+          echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
+          echo "JWT_EXP=${{ vars.JWT_EXP }}" >> .env
 
       - name: Set up DB
         run: |
           sudo service mysql start
-          mysql --user=root --password=root --execute="CREATE DATABASE a_todo CHARACTER SET utf8;"
+          mysql --user=root --password=root --execute="CREATE DATABASE ${{ vars.DB_NAME }} CHARACTER SET utf8;"
           yarn db:migrate
 
-      - name: Test
+      - name: Run test
         run: yarn test
+
+  Delivery:
+    runs-on: ubuntu-22.04
+    needs:
+      - Test
+
+    steps:
+      - name: Set up sources
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18.12.1
+          cache: yarn
+
+      - name: Install dependencies
+        run: yarn
 
       - name: Login to docker-hub
         uses: docker/login-action@v2
@@ -45,18 +68,21 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Set up PRODUCTION env
+      - name: Set up env
         run: |
           echo "NODE_ENV=production" > .env
+          echo "PORT=${{ vars.PORT }}" >> .env
+          echo "EXPO_ACCESS_TOKEN=${{ secrets.EXPO_ACCESS_TOKEN }}" >> .env
           echo "DB_HOST=${{ secrets.DB_HOST }}" >> .env
+          echo "DB_PORT=${{ secrets.DB_PORT }}" >> .env
           echo "DB_USER=${{ secrets.DB_USER }}" >> .env
           echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
+          echo "DB_NAME=${{ vars.DB_NAME }}" >> .env
           echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
-          echo "SALT_ROUND=${{ secrets.SALT_ROUND }}" >> .env
-          echo "EXPO_ACCESS_TOKEN=${{ secrets.EXPO_ACCESS_TOKEN }}" >> .env
+          echo "JWT_EXP=${{ vars.JWT_EXP }}" >> .env
 
       - name: Build docker image
         run: yarn build
 
-      - name: Push to docker-hub
+      - name: Push docker image to docker-hub
         run: yarn docker:push

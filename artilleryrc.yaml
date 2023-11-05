@@ -1,5 +1,5 @@
 config:
-  target: "http://127.0.0.1:3000"
+  target: "http://127.0.0.1:{{ $processEnvironment.PORT }}"
   plugins:
     metrics-by-endpoint:
       useOnlyRequestNames: true
@@ -21,9 +21,10 @@ config:
       arrivalRate: 5
       rampTo: 1
   payload:
-    path: ./user_id.csv
+    path: "{{ $processEnvironment.CSV_OF_VUSER }}"
     fields:
       - user_id
+      - password
 
 scenarios:
   - flow:
@@ -31,7 +32,7 @@ scenarios:
           name: Sign In
           url: /users/{{ user_id }}/access-token
           json:
-            password: password
+            password: "{{ password }}"
           capture:
             json: $.data.access_token
             as: access_token
