@@ -13,3 +13,6 @@ export const SCHEDULE_PUSH_OLD_WORKING_HINT: RecurrenceSpecObjLit = {
 };
 
 export const OLD_WORKING_BASE_TIME = 8;
+
+if (!process.env.EXPO_ACCESS_TOKEN) throw Error("there's no EXPO_ACCESS_TOKEN");
+export const EXPO_ACCESS_TOKEN = process.env.EXPO_ACCESS_TOKEN;
