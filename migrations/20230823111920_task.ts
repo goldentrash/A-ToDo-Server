@@ -1,8 +1,6 @@
-/**
- * @param { import("knex").Knex } knex
- * @returns { Promise<void> }
- */
-exports.up = async (knex) =>
+import { type Knex } from "knex";
+
+export const up = async (knex: Knex): Promise<void> =>
   knex.schema.createTable("task", (table) => {
     table.engine("InnoDB");
     table.increments("id");
@@ -36,8 +34,5 @@ exports.up = async (knex) =>
     );
   });
 
-/**
- * @param { import("knex").Knex } knex
- * @returns { Promise<void> }
- */
-exports.down = async (knex) => knex.schema.dropTableIfExists("task");
+export const down = async (knex: Knex): Promise<void> =>
+  knex.schema.dropTableIfExists("task");

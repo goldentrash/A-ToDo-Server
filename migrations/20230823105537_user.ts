@@ -1,8 +1,6 @@
-/**
- * @param { import("knex").Knex } knex
- * @returns { Promise<void> }
- */
-exports.up = async (knex) =>
+import { type Knex } from "knex";
+
+export const up = async (knex: Knex): Promise<void> =>
   knex.schema.createTable("user", (table) => {
     table.engine("InnoDB");
     table.string("id", 10).primary();
@@ -11,8 +9,5 @@ exports.up = async (knex) =>
     table.timestamp("last_accessed_at").notNullable().defaultTo(knex.fn.now());
   });
 
-/**
- * @param { import("knex").Knex } knex
- * @returns { Promise<void> }
- */
-exports.down = async (knex) => knex.schema.dropTableIfExists("user");
+export const down = async (knex: Knex): Promise<void> =>
+  knex.schema.dropTableIfExists("user");
