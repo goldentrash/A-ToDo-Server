@@ -12,9 +12,12 @@ export default class UserDomain {
   private id: string;
   private hashed_password: string;
 
-  constructor(userDTO: Pick<UserDTO, "id" | "hashed_password">) {
-    this.id = userDTO.id;
-    this.hashed_password = userDTO.hashed_password;
+  constructor({
+    id,
+    hashed_password,
+  }: Pick<UserDTO, "id" | "hashed_password">) {
+    this.id = id;
+    this.hashed_password = hashed_password;
   }
 
   genToken(): string {
