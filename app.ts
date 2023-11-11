@@ -6,13 +6,35 @@ import express, {
   type Response,
   type NextFunction,
 } from "express";
+import { scheduleJob } from "node-schedule";
 import { genUsersRouter, genTasksRouter } from "./routes";
 import { genUserService, genTaskService } from "./services";
 import { userRepo, taskRepo } from "./repositories";
 import { accessStream, rotatingStream } from "./streams";
-import { NODE_ENV, PORT } from "./constants";
-import "./schedules";
+import {
+  NODE_ENV,
+  PORT,
+  SCHEDULE_PUSH_OLD_WORKING_HINT,
+  SCHEDULE_PUSH_WATING_ALARM,
+} from "./constants";
+import { pushOldWorkingHint, pushWatingAlarm } from "./schedules";
 
+// schedule jobs
+rotatingStream.logInfo(
+  `Schedule pushOldWorkingHint at every ${JSON.stringify(
+    SCHEDULE_PUSH_OLD_WORKING_HINT
+  )}`
+);
+scheduleJob(SCHEDULE_PUSH_OLD_WORKING_HINT, pushOldWorkingHint);
+
+rotatingStream.logInfo(
+  `Schedule pushWatingAlarm at every ${JSON.stringify(
+    SCHEDULE_PUSH_WATING_ALARM
+  )}`
+);
+scheduleJob(SCHEDULE_PUSH_WATING_ALARM, pushWatingAlarm);
+
+// start HTTP server
 const app = express();
 app.use(express.json());
 app.use(
