@@ -1,10 +1,8 @@
 import createError from "http-errors";
-import { knex } from "../repositories";
-import { type TaskDTO, type TaskDAO, type SearchOption } from "./type";
+import { knex, taskRepo } from "../repositories";
+import { type TaskDTO, type SearchOption } from "./type";
 
-export type TaskService = ReturnType<typeof genTaskService>;
-
-export const genTaskService = (taskRepo: TaskDAO) => ({
+export const taskService = {
   async search(
     user_id: TaskDTO["user_id"],
     searchOption: SearchOption
@@ -45,8 +43,7 @@ export const genTaskService = (taskRepo: TaskDAO) => ({
       let taskDTO = await taskRepo.findById(trx, id);
       if (taskDTO.user_id !== user_id) throw createError(403, "Forbidden");
 
-      taskDTO.progress = "doing";
-      await taskRepo.updateProgress(trx, taskDTO);
+      await taskRepo.updateProgress(trx, { ...taskDTO, progress: "doing" });
       taskDTO = await taskRepo.findById(trx, id);
 
       trx.commit();
@@ -67,8 +64,7 @@ export const genTaskService = (taskRepo: TaskDAO) => ({
       let taskDTO = await taskRepo.findById(trx, id);
       if (taskDTO.user_id !== user_id) throw createError(403, "Forbidden");
 
-      taskDTO.progress = "done";
-      await taskRepo.updateProgress(trx, taskDTO);
+      await taskRepo.updateProgress(trx, { ...taskDTO, progress: "done" });
       taskDTO = await taskRepo.findById(trx, id);
 
       trx.commit();
@@ -90,8 +86,7 @@ export const genTaskService = (taskRepo: TaskDAO) => ({
       const taskDTO = await taskRepo.findById(trx, id);
       if (taskDTO.user_id !== user_id) throw createError(403, "Forbidden");
 
-      taskDTO.content = content;
-      await taskRepo.updateContent(trx, taskDTO);
+      await taskRepo.updateContent(trx, { ...taskDTO, content });
 
       trx.commit();
       return taskDTO;
@@ -100,4 +95,4 @@ export const genTaskService = (taskRepo: TaskDAO) => ({
       throw err;
     }
   },
-});
+};

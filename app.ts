@@ -7,9 +7,7 @@ import express, {
   type NextFunction,
 } from "express";
 import { scheduleJob } from "node-schedule";
-import { genUsersRouter, genTasksRouter } from "./routes";
-import { genUserService, genTaskService } from "./services";
-import { userRepo, taskRepo } from "./repositories";
+import { usersRouter, tasksRouter } from "./routes";
 import { accessStream, rotatingStream } from "./streams";
 import {
   NODE_ENV,
@@ -45,12 +43,6 @@ app.use(
       )
     : morgan("dev")
 );
-
-// inject dependencies
-const userService = genUserService(userRepo);
-const taskService = genTaskService(taskRepo);
-const usersRouter = genUsersRouter(userService);
-const tasksRouter = genTasksRouter(taskService, userService);
 
 app.use("/users", usersRouter);
 app.use("/tasks", tasksRouter);
