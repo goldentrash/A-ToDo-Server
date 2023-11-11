@@ -1,5 +1,6 @@
 import chai, { expect } from "chai";
 import chaiAsPromised from "chai-as-promised";
+import { HttpError } from "http-errors";
 import UserDomain from "./user";
 
 chai.use(chaiAsPromised);
@@ -26,6 +27,18 @@ describe("User Domain", function () {
       return expect(
         UserDomain.extractTokenPayload(token)
       ).to.eventually.deep.include({ user_id: testUserData.id });
+    });
+
+    it('유효하지 않은 토큰을 추출하면 "Token Invalid"를 throw해야 함', function () {
+      // given
+      const fakeToken = "faketoken";
+
+      // when
+
+      // then
+      return expect(
+        UserDomain.extractTokenPayload(fakeToken)
+      ).to.eventually.be.rejectedWith(HttpError, "Token Invalid");
     });
   });
 
