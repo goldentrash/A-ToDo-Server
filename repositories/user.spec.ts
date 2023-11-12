@@ -85,7 +85,7 @@ describe("User Repository", function () {
   });
 
   describe("Update", function () {
-    it("push token", async function () {
+    it("생성한 유저는 push token을 수정 가능해야 함", async function () {
       // given
       const userData: Parameters<typeof userRepo.insert>[1] = {
         id: "testuser",
