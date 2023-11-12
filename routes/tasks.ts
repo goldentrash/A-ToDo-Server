@@ -135,9 +135,10 @@ tasksRouter
       const option: SearchOption = { sort: null, filter: { progress: null } };
       const { sort, progress } = req.query;
       if (sort === "deadline") option.sort = "deadline";
-      if (typeof progress === "string") option.filter.progress = [progress];
+      if (typeof progress === "string")
+        option.filter.progress = [progress as TaskDTO["progress"]];
       if (Array.isArray(progress))
-        option.filter.progress = progress as string[];
+        option.filter.progress = progress as TaskDTO["progress"][];
 
       // Process
       const taskList = await taskService.search(user_id, option);
