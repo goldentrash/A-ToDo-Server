@@ -33,7 +33,7 @@ export type TaskDTO = {
 
 export type SearchOption = {
   sort: keyof TaskDTO | null;
-  filter: { progress: string[] | null };
+  filter: { progress: TaskDTO["progress"][] | null };
 };
 
 export type TaskDAO = {
@@ -47,6 +47,12 @@ export type TaskDAO = {
     knex: Knex,
     task: Pick<TaskDTO, "user_id" | "content" | "deadline">
   ): Promise<TaskDTO["id"]>;
-  updateProgress(knex: Knex, task: TaskDTO): Promise<void>;
-  updateContent(knex: Knex, task: TaskDTO): Promise<void>;
+  updateProgress(
+    knex: Knex,
+    task: Pick<TaskDTO, "id" | "progress">
+  ): Promise<void>;
+  updateContent(
+    knex: Knex,
+    task: Pick<TaskDTO, "id" | "content">
+  ): Promise<void>;
 };

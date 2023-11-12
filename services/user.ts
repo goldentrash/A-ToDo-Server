@@ -1,18 +1,14 @@
 import createError from "http-errors";
-import { knex } from "../repositories";
+import { knex, userRepo } from "../repositories";
 import UserDomain from "../domains/user";
-import { type UserDTO, type UserDAO } from "./type";
+import { type UserDTO } from "./type";
 
-export type UserService = ReturnType<typeof genUserService>;
-
-export const genUserService = (userRepo: UserDAO) => ({
+export const userService = {
   async signIn(id: UserDTO["id"], password: string): Promise<string> {
-    await userRepo.updateAccessTime(knex, id);
-
     const userDTO = await userRepo.findById(knex, id);
     const user = new UserDomain(userDTO);
 
-    if (!(await user.verifyPassword(password)))
+    if ((await user.verifyPassword(password)) === false)
       throw createError(400, "Password Invalid");
 
     return user.genToken();
@@ -42,4 +38,4 @@ export const genUserService = (userRepo: UserDAO) => ({
   }: Pick<UserDTO, "id" | "push_token">): Promise<void> {
     await userRepo.updatePushToken(knex, { id, push_token });
   },
-});
+};

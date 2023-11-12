@@ -1,8 +1,7 @@
-import { scheduleJob } from "node-schedule";
 import { type ExpoPushMessage } from "expo-server-sdk";
 import { rotatingStream } from "../streams";
 import { knex } from "../repositories";
-import { PUSH_CHANNEL_ID, SCHEDULE_PUSH_WATING_ALARM } from "../constants";
+import { PUSH_CHANNEL_ID } from "../constants";
 import { expo } from ".";
 
 const query = knex("task")
@@ -13,12 +12,7 @@ const query = knex("task")
   .select("user_id", "push_token")
   .count("*", { as: "num_of_todo" });
 
-rotatingStream.logInfo(
-  `Schedule pushWatingAlarm at every ${JSON.stringify(
-    SCHEDULE_PUSH_WATING_ALARM
-  )}`
-);
-scheduleJob(SCHEDULE_PUSH_WATING_ALARM, async () => {
+export const pushWatingAlarm = async () => {
   const targetList = (await query) as unknown as {
     user_id: string;
     push_token: string;
@@ -39,4 +33,4 @@ scheduleJob(SCHEDULE_PUSH_WATING_ALARM, async () => {
   await expo.sendPushNotificationsAsync(messages);
   for (const { to, title, body } of messages)
     rotatingStream.logInfo(`Push [ ${title} - ${body} ] to ${to}`);
-});
+};

@@ -2,7 +2,7 @@ import path from "path";
 import * as rfs from "rotating-file-stream";
 import { LOG_ROTATION_INTERVAL } from "../constants";
 
-const makeFilePrefix = (date: Parameters<rfs.Generator>[0]) =>
+const genFilePrefix = (date: Parameters<rfs.Generator>[0]) =>
   date instanceof Date
     ? `${date.getFullYear()}-${(date.getMonth() + 1)
         .toString()
@@ -15,17 +15,17 @@ const rotatingOption = {
 };
 
 export const errorStream = rfs.createStream(
-  (date) => `${makeFilePrefix(date)}-error.log`,
+  (date) => `${genFilePrefix(date)}-error.log`,
   rotatingOption
 );
 
 export const accessStream = rfs.createStream(
-  (date) => `${makeFilePrefix(date)}-access.log`,
+  (date) => `${genFilePrefix(date)}-access.log`,
   rotatingOption
 );
 
 export const infoStream = rfs.createStream(
-  (date) => `${makeFilePrefix(date)}-info.log`,
+  (date) => `${genFilePrefix(date)}-info.log`,
   rotatingOption
 );
 

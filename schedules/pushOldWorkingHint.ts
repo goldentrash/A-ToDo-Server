@@ -1,12 +1,7 @@
-import { scheduleJob } from "node-schedule";
 import { type ExpoPushMessage } from "expo-server-sdk";
 import { rotatingStream } from "../streams";
 import { knex } from "../repositories";
-import {
-  PUSH_CHANNEL_ID,
-  SCHEDULE_PUSH_OLD_WORKING_HINT,
-  OLD_WORKING_BASE_TIME,
-} from "../constants";
+import { PUSH_CHANNEL_ID, OLD_WORKING_BASE_TIME } from "../constants";
 import { expo } from ".";
 
 const query = knex("task")
@@ -19,12 +14,7 @@ const query = knex("task")
   )
   .having("time_passed", ">=", OLD_WORKING_BASE_TIME);
 
-rotatingStream.logInfo(
-  `Schedule pushOldWorkingHint at every ${JSON.stringify(
-    SCHEDULE_PUSH_OLD_WORKING_HINT
-  )}`
-);
-scheduleJob(SCHEDULE_PUSH_OLD_WORKING_HINT, async () => {
+export const pushOldWorkingHint = async () => {
   const targetList = (await query) as unknown as {
     user_id: string;
     push_token: string;
@@ -45,4 +35,4 @@ scheduleJob(SCHEDULE_PUSH_OLD_WORKING_HINT, async () => {
   await expo.sendPushNotificationsAsync(messages);
   for (const { to, title, body } of messages)
     rotatingStream.logInfo(`Push [ ${title} - ${body} ] to ${to}`);
-});
+};

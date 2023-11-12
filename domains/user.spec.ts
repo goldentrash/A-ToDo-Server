@@ -5,70 +5,79 @@ import UserDomain from "./user";
 
 chai.use(chaiAsPromised);
 
+type UserData = ConstructorParameters<typeof UserDomain>[0] & {
+  password: string;
+};
+
 describe("User Domain", function () {
   describe("access_token (JWT)", function () {
-    it("유저가 생성한 토큰은 인증 가능해야 함", function () {
+    it("생성한 토큰은 유저 ID를 포함해야 함", async function () {
       // given
-      const user = new UserDomain({
+      const testUserData: UserData = {
         id: "testuser",
-        hashed_password: "password",
-      });
+        password: "password",
+        hashed_password: await UserDomain.hashPassword("password"),
+      };
 
       // when
-      const token = user.genToken();
+      const testUser = new UserDomain(testUserData);
+      const token = testUser.genToken();
 
       // then
-      expect(UserDomain.extractTokenPayload(token)).to.eventually.not.throw();
+      return expect(
+        UserDomain.extractTokenPayload(token)
+      ).to.eventually.deep.include({ user_id: testUserData.id });
     });
 
-    it('유효하지 않은 토큰은 "Token Invalid"를 throw해야 함', function () {
+    it('유효하지 않은 토큰을 추출하면 "Token Invalid"를 throw해야 함', function () {
       // given
       const fakeToken = "faketoken";
 
-      // then
-      expect(UserDomain.extractTokenPayload(fakeToken)).to.eventually.throw(
-        HttpError,
-        "Token Invalid"
-      );
-    });
-
-    it("토큰 payload의 user_id는 토큰을 생성한 유저의 id여야 함", async function () {
-      // given
-      const user = new UserDomain({
-        id: "testuser",
-        hashed_password: "password",
-      });
-
       // when
-      const token = user.genToken();
 
       // then
-      const payload = await UserDomain.extractTokenPayload(token);
-      expect(payload.user_id).to.equal("testuser");
+      return expect(
+        UserDomain.extractTokenPayload(fakeToken)
+      ).to.eventually.be.rejectedWith(HttpError, "Token Invalid");
     });
   });
 
   describe("password hashing", function () {
-    it("password 원본으로 인증이 가능해야 함", async function () {
-      // when
-      const user = new UserDomain({
+    it("정확한 password로 인증이 가능해야 함", async function () {
+      // given
+      const testUserData: UserData = {
         id: "testuser",
+        password: "password",
         hashed_password: await UserDomain.hashPassword("password"),
-      });
+      };
+
+      // when
+      const testUser = new UserDomain(testUserData);
 
       // then
-      expect(await user.verifyPassword("password")).to.be.true;
+      return expect(testUser.verifyPassword(testUserData.password)).to
+        .eventually.be.true;
     });
 
-    it("원본과 다른 password로 인증이 불가능해야 함", async function () {
-      // when
-      const user = new UserDomain({
+    it("부정확한 password로 인증이 불가능해야 함", async function () {
+      // given
+      const testUserData: UserData = {
         id: "testuser",
+        password: "password",
         hashed_password: await UserDomain.hashPassword("password"),
-      });
+      };
+      const fakeUserData: UserData = {
+        id: "fakeuser",
+        password: "fakepassword",
+        hashed_password: await UserDomain.hashPassword("fakepassword"),
+      };
+
+      // when
+      const testUser = new UserDomain(testUserData);
 
       // then
-      expect(await user.verifyPassword("fakepassword")).to.be.false;
+      return expect(testUser.verifyPassword(fakeUserData.password)).to
+        .eventually.be.false;
     });
   });
 });
